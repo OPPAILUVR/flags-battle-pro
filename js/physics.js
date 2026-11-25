@@ -162,11 +162,8 @@
       this.resetChaosEffects();
     },
 
-    setSafeCountry: function (code) {
-      this.safeCountryCode = code || null;
-      for (var i = 0; i < this.flags.length; i++) {
-        this.flags[i].isSafe = (this.safeCountryCode !== null && this.flags[i].code === this.safeCountryCode);
-      }
+    setSafeCountry: function () {
+      this.safeCountryCode = null;
     },
 
     /* ================================================================ */
@@ -246,7 +243,7 @@
           speedBoostTimer: 0,
           graceTimer: 0.4,
           eliminated: false,
-          isSafe: (this.safeCountryCode !== null && data.code === this.safeCountryCode),
+          isSafe: false,
           isViewerFavorite: !!data.isViewerFavorite,
           hasChatSupport: !!data.hasChatSupport,
           supportCount: data.supportCount || 0,
@@ -575,18 +572,6 @@
                 x: check.cx,
                 y: check.cy,
                 shieldsLeft: owner.shields
-              });
-              break;
-            }
-
-            // Safe chat leader cannot lose its very last string while >2 flags remain
-            if (owner.isSafe && owner.stringsRemaining === 1 && activeCount > 2) {
-              owner.shieldCooldown = 0.4;
-              result.safeSaves.push({
-                code: owner.code,
-                name: owner.name,
-                x: owner.x,
-                y: owner.y
               });
               break;
             }

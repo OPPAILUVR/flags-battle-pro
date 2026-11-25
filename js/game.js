@@ -372,13 +372,6 @@
       const Physics = window.FB.Physics;
       const Renderer = window.FB.Renderer;
 
-      // Constantly monitor chat support and ensure top chat country is safe inside circle
-      const topChat = this.getTopChatCountry(true);
-      const safeCode = topChat ? topChat.code : null;
-      if (Physics) {
-        Physics.setSafeCountry(safeCode);
-      }
-
       // 1. Update physics
       const result = Physics.update(dt);
 
@@ -589,10 +582,7 @@
         return;
       }
 
-      // Safe country is immune to lightning while other competitors exist
-      const vulnerable = activeFlags.filter(f => !f.isSafe);
-      const candidates = vulnerable.length > 0 ? vulnerable : activeFlags;
-      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      const target = activeFlags[Math.floor(Math.random() * activeFlags.length)];
       const targetName = target.name || (Data ? Data.getFlagName(target.code) : target.code.toUpperCase());
 
       // Add lightning visual particles (line from top to flag)

@@ -1150,26 +1150,9 @@
     els.allTimeRounds.textContent = state.allTimeRounds;
     els.allTimeEliminations.textContent = state.allTimeEliminations;
 
-    // Update Safe Country (Chat Leader) Banner
-    const topChat = Game.getTopChatCountry(true);
-    if (topChat && (state.phase === 'playing' || state.phase === 'round_end')) {
-      if (els.safeLeaderBanner) {
-        els.safeLeaderBanner.classList.remove('hidden');
-        if (els.safeLeaderFlag) {
-          els.safeLeaderFlag.src = 'https://flagcdn.com/w40/' + topChat.code.toLowerCase() + '.png';
-          els.safeLeaderFlag.alt = topChat.name;
-        }
-        if (els.safeLeaderName) {
-          els.safeLeaderName.textContent = topChat.name;
-        }
-        if (els.safeLeaderVotes) {
-          els.safeLeaderVotes.textContent = topChat.count + ' ' + (topChat.count === 1 ? 'chat' : 'chats');
-        }
-      }
-    } else {
-      if (els.safeLeaderBanner) {
-        els.safeLeaderBanner.classList.add('hidden');
-      }
+    // Keep Safe Country banner hidden in string-cutting mode
+    if (els.safeLeaderBanner) {
+      els.safeLeaderBanner.classList.add('hidden');
     }
   }
 

@@ -752,10 +752,6 @@
         var f = flags[i];
         if (f.eliminated) continue;
 
-        if (f.isSafe) {
-          this._drawSafeAura(ctx, f);
-        }
-
         this._drawCircularFlag(ctx, f, f.x, f.y, f.radius || 18);
 
         // Shield indicator
