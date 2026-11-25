@@ -333,6 +333,11 @@
         f.x += f.vx * dtScale;
         f.y += f.vy * dtScale;
 
+        // Proactively form a new string to the nearest free space on the circle
+        if (this.startingGraceTimer <= 0 && f.attachCooldown <= 0) {
+          this._tryAttachNearestAnchor(f, Math.atan2(f.y - this.centerY, f.x - this.centerX), result);
+        }
+
         // 2. Closed circular wall bounce
         var dx = f.x - this.centerX;
         var dy = f.y - this.centerY;
@@ -360,11 +365,6 @@
             f.vy = jvy;
 
             result.bounces.push({ code: f.code, force: Math.abs(dot) });
-
-            // Attach a new string to the nearest free perimeter anchor on wall bounce
-            if (this.startingGraceTimer <= 0 && f.attachCooldown <= 0) {
-              this._tryAttachNearestAnchor(f, Math.atan2(dy, dx), result);
-            }
           }
         }
       }
@@ -421,13 +421,13 @@
       }
     },
 
-    _tryAttachNearestAnchor: function (flag, hitAngle, result) {
+    _tryAttachNearestAnchor: function (flag, refAngle, result) {
       var best = null;
-      var bestDiff = 0.65; // ~37 degrees max reach from wall bounce point
+      var bestDiff = Infinity;
       for (var i = 0; i < this.anchors.length; i++) {
         var a = this.anchors[i];
         if (a.ownerId !== null) continue;
-        var diff = Math.abs(normalizeAngle(a.angle - hitAngle));
+        var diff = Math.abs(normalizeAngle(a.angle - refAngle));
         if (diff < bestDiff) {
           bestDiff = diff;
           best = a;
@@ -436,7 +436,7 @@
       if (best) {
         best.ownerId = flag.id;
         flag.stringsRemaining++;
-        flag.attachCooldown = 0.14;
+        flag.attachCooldown = 0.55;
         if (result && result.attaches) {
           result.attaches.push({
             x: best.ax,
