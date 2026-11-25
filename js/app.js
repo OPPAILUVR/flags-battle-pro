@@ -1465,7 +1465,7 @@
     } else if (Game.state.phase === 'idle') {
       // Still render the idle view
       if (window.FB.Renderer) {
-        window.FB.Renderer.updateParticles(elapsedMs / 1000);
+        window.FB.Renderer.updateParticles(dt);
         window.FB.Renderer.render(Game.getRenderState());
       }
     }

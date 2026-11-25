@@ -362,7 +362,7 @@
         }
         // Still render even in round_end / champion so we can see arena and confetti particles
         if (window.FB.Renderer) {
-          window.FB.Renderer.updateParticles(dtSec);
+          window.FB.Renderer.updateParticles(dt);
           window.FB.Renderer.render(this.getRenderState());
         }
         return;
@@ -471,7 +471,7 @@
 
       // 7. Update and render particles + scene
       if (Renderer) {
-        Renderer.updateParticles(dtSec);
+        Renderer.updateParticles(dt);
         Renderer.render(this.getRenderState());
       }
     },
