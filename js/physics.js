@@ -36,6 +36,12 @@
     return v < min ? min : (v > max ? max : v);
   }
 
+  function normalizeAngle(a) {
+    while (a > Math.PI) a -= Math.PI * 2;
+    while (a < -Math.PI) a += Math.PI * 2;
+    return a;
+  }
+
   /**
    * Shortest distance squared from point (px, py) to segment (ax, ay)-(bx, by).
    * Returns { distSq, cx, cy }.
@@ -100,6 +106,7 @@
 
     /* --- runtime --- */
     flags: [],
+    anchors: [],
 
     /* ================================================================ */
     /*  init / reset                                                     */
@@ -130,6 +137,7 @@
 
     reset: function () {
       this.flags = [];
+      this.anchors = [];
       this.arenaAngle = 0;
       this.accumulatedRotation = 0;
       this.arenaRadius = this.baseRadius || 215;
@@ -157,6 +165,7 @@
     spawnFlags: function (flagDataArray, options) {
       options = options || {};
       this.flags = [];
+      this.anchors = [];
       this.arenaRadius = this.baseRadius || 215;
       this.introTimer = options.skipIntro ? 0 : this.introDuration;
       this.startingGraceTimer = this.startingGraceDuration;
@@ -178,19 +187,19 @@
         var sy = this.centerY + Math.sin(slotAngle) * slotRadius;
         var color = FLAG_COLORS[i % FLAG_COLORS.length];
 
-        // Build contiguous arc of anchor points around slotAngle
-        var strings = [];
+        // Build contiguous arc of shared perimeter anchor points around slotAngle
         var arcSpan = angleStep;
         var anchorStep = arcSpan / stringsCount;
         var arcStart = slotAngle - arcSpan / 2 + anchorStep / 2;
 
         for (var s = 0; s < stringsCount; s++) {
           var aAngle = arcStart + s * anchorStep;
-          strings.push({
+          this.anchors.push({
+            id: this.anchors.length,
             angle: aAngle,
             ax: this.centerX + Math.cos(aAngle) * this.arenaRadius,
             ay: this.centerY + Math.sin(aAngle) * this.arenaRadius,
-            alive: true
+            ownerId: i
           });
         }
 
@@ -213,11 +222,11 @@
           vx: Math.cos(launchAngle) * baseSpeed,
           vy: Math.sin(launchAngle) * baseSpeed,
           radius: this.flagRadius,
-          strings: strings,
-          stringsRemaining: strings.length,
-          totalStrings: strings.length,
+          stringsRemaining: stringsCount,
+          totalStrings: stringsCount,
           shields: data.shields || 0,
           shieldCooldown: 0,
+          attachCooldown: 0,
           speedBoostTimer: 0,
           graceTimer: 0.4,
           eliminated: false,
@@ -231,14 +240,10 @@
     },
 
     _updateAnchorPositions: function () {
-      for (var i = 0; i < this.flags.length; i++) {
-        var f = this.flags[i];
-        if (!f.strings) continue;
-        for (var s = 0; s < f.strings.length; s++) {
-          var st = f.strings[s];
-          st.ax = this.centerX + Math.cos(st.angle) * this.arenaRadius;
-          st.ay = this.centerY + Math.sin(st.angle) * this.arenaRadius;
-        }
+      for (var i = 0; i < this.anchors.length; i++) {
+        var a = this.anchors[i];
+        a.ax = this.centerX + Math.cos(a.angle) * this.arenaRadius;
+        a.ay = this.centerY + Math.sin(a.angle) * this.arenaRadius;
       }
     },
 
@@ -253,6 +258,7 @@
         safeSaves: [],
         bounces: [],
         cuts: [],
+        attaches: [],
         gapExpanded: false,
         currentGapDegrees: 0
       };
@@ -292,6 +298,7 @@
         var f = activeFlags[i];
         if (f.graceTimer > 0) f.graceTimer = Math.max(0, f.graceTimer - dtSec);
         if (f.shieldCooldown > 0) f.shieldCooldown = Math.max(0, f.shieldCooldown - dtSec);
+        if (f.attachCooldown > 0) f.attachCooldown = Math.max(0, f.attachCooldown - dtSec);
         if (f.speedBoostTimer > 0) f.speedBoostTimer = Math.max(0, f.speedBoostTimer - dtSec);
 
         // Light gravity + chaos forces
@@ -353,6 +360,11 @@
             f.vy = jvy;
 
             result.bounces.push({ code: f.code, force: Math.abs(dot) });
+
+            // Attach a new string to the nearest free perimeter anchor on wall bounce
+            if (this.startingGraceTimer <= 0 && f.attachCooldown <= 0) {
+              this._tryAttachNearestAnchor(f, Math.atan2(dy, dx), result);
+            }
           }
         }
       }
@@ -409,83 +421,109 @@
       }
     },
 
+    _tryAttachNearestAnchor: function (flag, hitAngle, result) {
+      var best = null;
+      var bestDiff = 0.65; // ~37 degrees max reach from wall bounce point
+      for (var i = 0; i < this.anchors.length; i++) {
+        var a = this.anchors[i];
+        if (a.ownerId !== null) continue;
+        var diff = Math.abs(normalizeAngle(a.angle - hitAngle));
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          best = a;
+        }
+      }
+      if (best) {
+        best.ownerId = flag.id;
+        flag.stringsRemaining++;
+        flag.attachCooldown = 0.14;
+        if (result && result.attaches) {
+          result.attaches.push({
+            x: best.ax,
+            y: best.ay,
+            color: flag.color,
+            code: flag.code
+          });
+        }
+      }
+    },
+
     _checkStringCuts: function (activeFlags, result) {
       var n = activeFlags.length;
       var activeCount = n;
 
-      for (var i = 0; i < n; i++) {
-        var owner = activeFlags[i];
-        if (owner.eliminated || !owner.strings) continue;
+      for (var k = 0; k < this.anchors.length; k++) {
+        var anchor = this.anchors[k];
+        if (anchor.ownerId === null) continue;
 
-        for (var s = 0; s < owner.strings.length; s++) {
-          var str = owner.strings[s];
-          if (!str.alive) continue;
+        var owner = this.flags[anchor.ownerId];
+        if (!owner || owner.eliminated) {
+          anchor.ownerId = null;
+          continue;
+        }
 
-          for (var j = 0; j < n; j++) {
-            if (i === j) continue;
-            var cutter = activeFlags[j];
-            if (cutter.eliminated || cutter.graceTimer > 0) continue;
+        for (var j = 0; j < n; j++) {
+          var cutter = activeFlags[j];
+          if (cutter.id === owner.id || cutter.eliminated || cutter.graceTimer > 0) continue;
 
-            var hitR = cutter.radius * 0.9;
-            var check = pointToSegmentDistSq(
-              cutter.x, cutter.y,
-              owner.x, owner.y,
-              str.ax, str.ay
-            );
+          var hitR = cutter.radius * 0.9;
+          var check = pointToSegmentDistSq(
+            cutter.x, cutter.y,
+            owner.x, owner.y,
+            anchor.ax, anchor.ay
+          );
 
-            if (check.distSq <= hitR * hitR) {
-              // Shield blocks a string cut
-              if (owner.shields > 0 && owner.shieldCooldown <= 0) {
-                owner.shields--;
-                owner.shieldCooldown = 0.4;
-                result.shieldSaves.push({
-                  code: owner.code,
-                  name: owner.name,
-                  x: check.cx,
-                  y: check.cy,
-                  shieldsLeft: owner.shields
-                });
-                break;
-              }
-
-              // Safe chat leader cannot lose its very last string while >2 flags remain
-              if (owner.isSafe && owner.stringsRemaining === 1 && activeCount > 2) {
-                owner.shieldCooldown = 0.4;
-                result.safeSaves.push({
-                  code: owner.code,
-                  name: owner.name,
-                  x: owner.x,
-                  y: owner.y
-                });
-                break;
-              }
-
-              // Cut the string!
-              str.alive = false;
-              owner.stringsRemaining--;
-              result.cuts.push({
+          if (check.distSq <= hitR * hitR) {
+            // Shield blocks a string cut
+            if (owner.shields > 0 && owner.shieldCooldown <= 0) {
+              owner.shields--;
+              owner.shieldCooldown = 0.4;
+              result.shieldSaves.push({
+                code: owner.code,
+                name: owner.name,
                 x: check.cx,
                 y: check.cy,
-                color: owner.color,
-                owner: owner.code,
-                cutBy: cutter.code
+                shieldsLeft: owner.shields
               });
               break;
             }
-          }
-        }
 
-        // Eliminate if 0 strings remain
-        if (owner.stringsRemaining <= 0 && !owner.eliminated) {
-          owner.eliminated = true;
-          activeCount--;
-          result.eliminated.push({
-            code: owner.code,
-            name: owner.name,
-            x: owner.x,
-            y: owner.y,
-            color: owner.color
-          });
+            // Safe chat leader cannot lose its very last string while >2 flags remain
+            if (owner.isSafe && owner.stringsRemaining === 1 && activeCount > 2) {
+              owner.shieldCooldown = 0.4;
+              result.safeSaves.push({
+                code: owner.code,
+                name: owner.name,
+                x: owner.x,
+                y: owner.y
+              });
+              break;
+            }
+
+            // Cut the string and free the anchor!
+            anchor.ownerId = null;
+            owner.stringsRemaining--;
+            result.cuts.push({
+              x: check.cx,
+              y: check.cy,
+              color: owner.color,
+              owner: owner.code,
+              cutBy: cutter.code
+            });
+
+            if (owner.stringsRemaining <= 0 && !owner.eliminated) {
+              owner.eliminated = true;
+              activeCount--;
+              result.eliminated.push({
+                code: owner.code,
+                name: owner.name,
+                x: owner.x,
+                y: owner.y,
+                color: owner.color
+              });
+            }
+            break;
+          }
         }
       }
     },
@@ -509,16 +547,16 @@
       for (var i = 0; i < this.flags.length; i++) {
         var f = this.flags[i];
         if (!f.eliminated && (f.code === idOrCode || f.id === idOrCode)) {
-          for (var s = 0; s < f.strings.length && toCut > 0; s++) {
-            if (f.strings[s].alive) {
-              f.strings[s].alive = false;
+          for (var k = 0; k < this.anchors.length && toCut > 0; k++) {
+            if (this.anchors[k].ownerId === f.id) {
+              this.anchors[k].ownerId = null;
               f.stringsRemaining--;
               toCut--;
             }
           }
           if (f.stringsRemaining <= 0) {
             f.eliminated = true;
-            return true; // eliminated
+            return true;
           }
           return false;
         }
@@ -557,6 +595,7 @@
     getState: function () {
       return {
         flags: this.flags,
+        anchors: this.anchors,
         arenaAngle: this.arenaAngle,
         arenaRadius: this.arenaRadius,
         gapSize: 0,
@@ -625,8 +664,10 @@
         if (f.code === idOrCode || f.id === idOrCode) {
           f.eliminated = true;
           f.stringsRemaining = 0;
-          if (f.strings) {
-            for (var s = 0; s < f.strings.length; s++) f.strings[s].alive = false;
+          for (var k = 0; k < this.anchors.length; k++) {
+            if (this.anchors[k].ownerId === f.id) {
+              this.anchors[k].ownerId = null;
+            }
           }
           return true;
         }

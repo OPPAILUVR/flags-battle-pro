@@ -218,6 +218,7 @@
       var gState = (window.FB && window.FB.Game) ? window.FB.Game.state : {};
 
       var flags          = state.flags          || pState.flags          || [];
+      var anchors        = state.anchors        || pState.anchors        || [];
       var arenaAngle     = state.arenaAngle     !== undefined ? state.arenaAngle     : (pState.arenaAngle || 0);
       var arenaRadius    = state.arenaRadius    !== undefined ? state.arenaRadius    : (pState.arenaRadius || 280);
       var gapSize        = state.gapSize        !== undefined ? state.gapSize        : (pState.gapSize || Math.PI / 3);
@@ -254,7 +255,7 @@
       } else if (introTimer > 0 && flags.length > 0) {
         this._drawIntroLobby(ctx, flags, centerX, centerY, arenaRadius, introTimer, introDuration);
       } else {
-        this._drawStringsAndAnchors(ctx, flags, centerX, centerY, arenaRadius);
+        this._drawStringsAndAnchors(ctx, flags, anchors);
         this._drawActiveFlags(ctx, flags);
       }
 
@@ -654,44 +655,44 @@
     },
 
     /**
-     * Layer 5a — Draw perimeter anchor dots and taut colored strings.
+     * Layer 5a — Draw shared perimeter anchor dots and taut colored strings.
      */
-    _drawStringsAndAnchors: function (ctx, flags, cx, cy, r) {
-      for (var i = 0; i < flags.length; i++) {
-        var f = flags[i];
-        if (!f.strings) continue;
-        var color = f.color || '#ffffff';
+    _drawStringsAndAnchors: function (ctx, flags, anchors) {
+      if (!anchors || anchors.length === 0) return;
 
-        for (var s = 0; s < f.strings.length; s++) {
-          var st = f.strings[s];
-          if (st.alive && !f.eliminated) {
-            // Draw taut string
-            ctx.save();
-            ctx.strokeStyle = color;
-            ctx.globalAlpha = 0.72;
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(f.x, f.y);
-            ctx.lineTo(st.ax, st.ay);
-            ctx.stroke();
-            ctx.restore();
+      for (var i = 0; i < anchors.length; i++) {
+        var a = anchors[i];
+        var owner = (a.ownerId !== null && a.ownerId !== undefined) ? flags[a.ownerId] : null;
 
-            // Active anchor dot
-            ctx.save();
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(st.ax, st.ay, 2.6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-          } else {
-            // Cut anchor dot (dim)
-            ctx.save();
-            ctx.fillStyle = 'rgba(255,255,255,0.16)';
-            ctx.beginPath();
-            ctx.arc(st.ax, st.ay, 1.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-          }
+        if (owner && !owner.eliminated) {
+          var color = owner.color || '#ffffff';
+
+          // Draw taut string
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = 0.72;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(owner.x, owner.y);
+          ctx.lineTo(a.ax, a.ay);
+          ctx.stroke();
+          ctx.restore();
+
+          // Active anchor dot
+          ctx.save();
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(a.ax, a.ay, 2.6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          // Free / empty anchor dot (available to claim)
+          ctx.save();
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.beginPath();
+          ctx.arc(a.ax, a.ay, 2.0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
         }
       }
     },
