@@ -323,7 +323,7 @@
       els.btnStringsMinus.addEventListener('click', () => {
         const P = window.FB.Physics;
         if (!P) return;
-        var cur = P._stringsPerFlag || 10;
+        var cur = P._stringsPerFlag || 11;
         P._stringsPerFlag = Math.max(3, cur - 1);
         updateStringsDisplay();
       });
@@ -332,7 +332,7 @@
       els.btnStringsPlus.addEventListener('click', () => {
         const P = window.FB.Physics;
         if (!P) return;
-        var cur = P._stringsPerFlag || 10;
+        var cur = P._stringsPerFlag || 11;
         P._stringsPerFlag = Math.min(20, cur + 1);
         updateStringsDisplay();
       });
@@ -1301,7 +1301,7 @@
   /** Update strings per flag display */
   function updateStringsDisplay() {
     if (els.stringsDisplay) {
-      var val = (window.FB.Physics && window.FB.Physics._stringsPerFlag) ? window.FB.Physics._stringsPerFlag : 10;
+      var val = (window.FB.Physics && window.FB.Physics._stringsPerFlag) ? window.FB.Physics._stringsPerFlag : 11;
       els.stringsDisplay.textContent = val;
     }
   }

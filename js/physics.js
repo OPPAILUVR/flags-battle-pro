@@ -13,7 +13,7 @@
   /*  Constants & Helpers                                                */
   /* ------------------------------------------------------------------ */
 
-  var STRINGS_PER_FLAG = 9;
+  var STRINGS_PER_FLAG = 11;
 
   // Expose as mutable on module for UI control
   var _stringsPerFlagOverride = null;
