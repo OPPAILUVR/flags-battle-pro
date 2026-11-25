@@ -226,46 +226,45 @@
       var introTimer     = state.introTimer     !== undefined ? state.introTimer     : (pState.introTimer || 0);
       var introDuration  = state.introDuration  !== undefined ? state.introDuration  : (pState.introDuration || 3.2);
       var elimBanner     = state.eliminationBanner || null;
+      var topScoreboard  = state.topScoreboard  || [];
+      var grandTimer     = state.grandChampionTimer !== undefined ? state.grandChampionTimer : 240;
+      var voteQueueCodes = state.voteQueueCodes || [];
+      var recentVoters   = state.recentVoters   || [];
+      var winnerInfo     = state.winnerInfo     || null;
 
       // Update particles
       this.updateParticles(1);
       this._updateAmbient(W, H);
 
-      // --- Layer 1: Background ---
+      // --- Layer 1: Deep Black Background (matching recording) ---
       this._drawBackground(ctx, W, H);
 
-      // --- Layer 2: Ambient particles ---
-      this._drawAmbientParticles(ctx);
+      // --- Layer 2: Top HUD (Vote Header + 2x4 Grid + Grand Champion Timer + Top 3) ---
+      this._drawTopHUD(ctx, W, flags, grandTimer, topScoreboard);
 
-      // --- Layer 3: Arena shadow ---
-      this._drawArenaShadow(ctx, centerX, centerY, arenaRadius);
-
-      // --- Layer 4: Closed glowing arena ring ---
+      // --- Layer 3: Closed White Glowing Arena Ring ---
       this._drawArenaRing(ctx, centerX, centerY, arenaRadius);
 
-      // --- Layer 5: Intro Lobby OR Strings + Active Flags ---
-      if (introTimer > 0 && flags.length > 0) {
+      // --- Layer 4: Intro Lobby OR Winner OR Strings + Active Flags ---
+      if (winnerInfo && (phase === 'round_end' || phase === 'champion')) {
+        this._drawInCircleWinner(ctx, winnerInfo, centerX, centerY, arenaRadius);
+      } else if (introTimer > 0 && flags.length > 0) {
         this._drawIntroLobby(ctx, flags, centerX, centerY, arenaRadius, introTimer, introDuration);
       } else {
         this._drawStringsAndAnchors(ctx, flags, centerX, centerY, arenaRadius);
         this._drawActiveFlags(ctx, flags);
       }
 
-      // --- Layer 6: Elimination Banner ---
+      // --- Layer 5: Elimination Banner ("COUNTRY IS OUT!") ---
       if (elimBanner) {
-        this._drawEliminationBanner(ctx, elimBanner, W, centerY - arenaRadius - 26);
+        this._drawEliminationBanner(ctx, elimBanner, W, centerY - arenaRadius + 24);
       }
 
-      // --- Layer 7: Effect particles (front) ---
+      // --- Layer 6: Effect particles (sparks / confetti / lightning) ---
       this._drawParticles(ctx);
 
-      // --- Layer 8: Graveyard pile ---
-      this._drawGraveyard(ctx, eliminatedPile, W, H);
-
-      // --- Layer 9: Top Winners overlay ---
-      if (phase === 'playing' || phase === 'round_end' || phase === 'champion') {
-        this._drawTopWinners(ctx, topWinners, W, H);
-      }
+      // --- Layer 7: Bottom HUD (VOTES 10-slot row + CTA + 4-row Live Voter Feed) ---
+      this._drawBottomHUD(ctx, W, H, centerY + arenaRadius, voteQueueCodes, recentVoters);
     },
 
     /* ================================================================ */
@@ -273,15 +272,247 @@
     /* ================================================================ */
 
     /**
-     * Layer 1 — Radial gradient background.
+     * Layer 1 — Crisp deep-dark background matching the screen recording.
      */
     _drawBackground: function (ctx, W, H) {
-      var t = this.theme;
-      var grad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, H * 0.75);
-      grad.addColorStop(0, t.bg[1]);
-      grad.addColorStop(1, t.bg[0]);
-      ctx.fillStyle = grad;
+      ctx.fillStyle = '#060608';
       ctx.fillRect(0, 0, W, H);
+    },
+
+    /**
+     * Layer 2 — Top HUD: Vote header, 2x4 contender grid, Grand Champion timer, Top 3 leaderboard.
+     */
+    _drawTopHUD: function (ctx, W, flags, grandTimer, topScoreboard) {
+      // Header text
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('VOTE NOW · CHARGE YOUR SPEED', W / 2, 12);
+
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('EVERY 5 VOTES = 2s SPEED BOOST', W / 2, 28);
+      ctx.restore();
+
+      // 2x4 Contender Status Grid (y = 48..90)
+      var cols = 4;
+      var cellW = (W - 40) / cols;
+      var startX = 20;
+      var startY = 48;
+
+      for (var i = 0; i < Math.min(8, flags.length); i++) {
+        var f = flags[i];
+        var col = i % cols;
+        var row = Math.floor(i / cols);
+        var cx = startX + col * cellW;
+        var cy = startY + row * 22;
+
+        ctx.save();
+        ctx.globalAlpha = f.eliminated ? 0.35 : 1.0;
+
+        // Mini circular flag
+        this._drawCircularFlag(ctx, f, cx + 10, cy + 8, 7.5);
+
+        // 2-letter code
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText((f.code || '').toUpperCase(), cx + 22, cy + 8);
+
+        // Status: OUT or votes/5
+        ctx.textAlign = 'right';
+        if (f.eliminated) {
+          ctx.fillStyle = '#9ca3af';
+          ctx.font = 'bold 9px sans-serif';
+          ctx.fillText('OUT', cx + cellW - 8, cy + 8);
+        } else {
+          var prog = (f.supportCount || 0) % 5;
+          ctx.fillStyle = prog > 0 ? '#facc15' : '#9ca3af';
+          ctx.font = 'bold 9px sans-serif';
+          ctx.fillText(prog + '/5', cx + cellW - 8, cy + 8);
+        }
+        ctx.restore();
+      }
+
+      // Row 2: Grand Champion Timer (left) + Top 3 Leaderboard (right)
+      var row2Y = 100;
+
+      // Left: GRAND CHAMPION IN + green MM:SS
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#facc15';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('GRAND CHAMPION IN', 20, row2Y);
+
+      var secs = Math.max(0, Math.floor(grandTimer || 0));
+      var mm = String(Math.floor(secs / 60)).padStart(2, '0');
+      var ss = String(secs % 60).padStart(2, '0');
+      ctx.fillStyle = '#22c55e';
+      ctx.font = 'bold 34px monospace';
+      ctx.fillText(mm + ':' + ss, 20, row2Y + 15);
+      ctx.restore();
+
+      // Right: Top 3 Leaderboard
+      var lbX = 225;
+      var lbW = W - lbX - 20;
+      var rankColors = ['#facc15', '#cbd5e1', '#d97706'];
+
+      for (var r = 0; r < 3; r++) {
+        var entry = topScoreboard[r];
+        var ry = row2Y + r * 20;
+
+        ctx.save();
+        // Rank circle
+        ctx.beginPath();
+        ctx.arc(lbX + 8, ry + 8, 7, 0, Math.PI * 2);
+        ctx.fillStyle = rankColors[r];
+        ctx.fill();
+
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(r + 1), lbX + 8, ry + 8.5);
+
+        if (entry) {
+          this._drawCircularFlag(ctx, { code: entry.code, color: '#ffffff' }, lbX + 26, ry + 8, 7.5);
+
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = r === 0 ? '#facc15' : '#e5e7eb';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText((entry.name || entry.code).toUpperCase(), lbX + 40, ry + 8.5);
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#f97316';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText(String(entry.wins || 0), lbX + lbW, ry + 8.5);
+        } else {
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(255,255,255,0.22)';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('---', lbX + 40, ry + 8.5);
+        }
+        ctx.restore();
+      }
+    },
+
+    /**
+     * Layer 4b — In-Circle Winner Display (matches recording's WINNER! screen).
+     */
+    _drawInCircleWinner: function (ctx, winnerInfo, cx, cy, r) {
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText('WINNER!', cx, cy - 86);
+
+      // Large circular winner flag
+      this._drawCircularFlag(ctx, { code: winnerInfo.code, color: '#facc15' }, cx, cy - 10, 52);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText((winnerInfo.name || winnerInfo.code).toUpperCase(), cx, cy + 68);
+
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = 'bold 10px sans-serif';
+      var winLabel = winnerInfo.wins === 1 ? '1 ROUND WIN THIS CHAMPIONSHIP' : (winnerInfo.wins + ' ROUND WINS THIS CHAMPIONSHIP');
+      ctx.fillText(winLabel, cx, cy + 92);
+      ctx.restore();
+    },
+
+    /**
+     * Layer 7 — Bottom HUD: VOTES 10-slot row, CTA, and 4-row Live Voter Feed.
+     */
+    _drawBottomHUD: function (ctx, W, H, arenaBottomY, voteQueueCodes, recentVoters) {
+      var votesY = Math.max(arenaBottomY + 26, 660);
+
+      // "VOTES" + 10 circular slots
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('VOTES', 28, votesY);
+
+      var slotStartX = 96;
+      var slotGap = 39;
+      for (var i = 0; i < 10; i++) {
+        var sx = slotStartX + i * slotGap;
+        var code = voteQueueCodes[i];
+        if (code) {
+          this._drawCircularFlag(ctx, { code: code, color: '#ffffff' }, sx, votesY, 13);
+        } else {
+          ctx.beginPath();
+          ctx.arc(sx, votesY, 13, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      // CTA line
+      var ctaY = votesY + 34;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('COMMENT A COUNTRY · TOP 7 PLAY NEXT!', W / 2, ctaY);
+
+      // 4-row Live Voter Feed
+      var feedStartY = ctaY + 24;
+      var rowH = 38;
+      var rowGap = 6;
+      var barW = W - 40;
+
+      for (var r = 0; r < 4; r++) {
+        var ry = feedStartY + r * (rowH + rowGap);
+        if (ry + rowH > H - 6) break;
+        var v = recentVoters[r];
+
+        // Dark pill background
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(20, ry, barW, rowH, 8);
+        else ctx.rect(20, ry, barW, rowH);
+        ctx.fill();
+
+        if (v) {
+          this._drawCircularFlag(ctx, { code: v.code, color: '#ffffff' }, 42, ry + rowH / 2, 11);
+
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#facc15';
+          ctx.font = 'bold 12px sans-serif';
+          var cName = (v.name || v.code).toUpperCase();
+          ctx.fillText(cName, 62, ry + rowH / 2);
+
+          var nameW = ctx.measureText(cName).width;
+          ctx.fillStyle = '#9ca3af';
+          ctx.font = '11px sans-serif';
+          var handle = '@' + String(v.author || 'viewer').replace(/^@/, '');
+          if (handle.length > 18) handle = handle.slice(0, 17) + '…';
+          ctx.fillText(handle, 68 + nameW, ry + rowH / 2);
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#facc15';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('#' + (r + 1) + ' · ' + v.votes + ' VOTES', 20 + barW - 12, ry + rowH / 2);
+        } else {
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'rgba(255,255,255,0.18)';
+          ctx.font = '11px sans-serif';
+          ctx.fillText('Waiting for live chat votes...', W / 2, ry + rowH / 2);
+        }
+      }
+      ctx.restore();
     },
 
     /**
@@ -331,29 +562,12 @@
      * Layer 4 — Closed glowing arena ring.
      */
     _drawArenaRing: function (ctx, cx, cy, r) {
-      var t = this.theme;
-
-      var grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
-      grad.addColorStop(0, t.ring[0]);
-      grad.addColorStop(1, t.ring[1]);
-
-      // Outer glow
+      // Crisp white glowing ring matching the screen recording
       ctx.save();
-      ctx.shadowBlur = 22;
-      ctx.shadowColor = t.glow;
-      ctx.strokeStyle = t.glow;
-      ctx.lineWidth = 10;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-
-      // Solid ring
-      ctx.save();
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = t.glow;
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 4;
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.55)';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();

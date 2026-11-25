@@ -85,6 +85,8 @@
     chaosTimer: 0,
     roundEndTimer: 0,
     autoNextTimer: 0,
+    grandChampionTimer: 240,
+    _recentVoters: [],
 
     /* ── Events ──────────────────────────── */
     _events: {},
@@ -441,6 +443,13 @@
       // Update elimination banner timer
       if (this._lastBanner && this._lastBanner.timer > 0) {
         this._lastBanner.timer = Math.max(0, this._lastBanner.timer - dtSec);
+      }
+
+      // Update Grand Champion countdown timer
+      if (this.grandChampionTimer === undefined) this.grandChampionTimer = 240;
+      this.grandChampionTimer -= dtSec;
+      if (this.grandChampionTimer <= 0) {
+        this.grandChampionTimer = 240;
       }
 
       // 4. Lightning mode
@@ -829,6 +838,21 @@
         window.FB.Physics.boostFlag(code, 2.0);
       }
 
+      // Record for live voter feed
+      if (!this._recentVoters) this._recentVoters = [];
+      const ytBoosts = (window.FB.YouTubeChat && window.FB.YouTubeChat.recentBoosts) ? window.FB.YouTubeChat.recentBoosts : [];
+      const latestYt = ytBoosts.find(b => b.code === code);
+      const voterAuthor = latestYt && latestYt.author ? latestYt.author : ('viewer_' + code);
+      this._recentVoters.unshift({
+        code: code,
+        name: name,
+        author: voterAuthor,
+        votes: this.state.support[code] || 1
+      });
+      if (this._recentVoters.length > 6) {
+        this._recentVoters.length = 6;
+      }
+
       // Calculate new shield tier
       const supportCount = this.state.support[code];
       let newShields = 0;
@@ -1052,11 +1076,37 @@
 
     getRenderState() {
       const pState = window.FB.Physics ? window.FB.Physics.getState() : {};
+      const Data = window.FB.Data;
+
+      // Top 3 scoreboard entries for canvas HUD
+      const topScoreboard = this.getScoreboard().slice(0, 3);
+
+      // Top voted countries for the 10-slot VOTES bar
+      const voteQueueCodes = Object.keys(this.state.support || {})
+        .filter(c => (this.state.support[c] || 0) > 0)
+        .sort((a, b) => (this.state.support[b] || 0) - (this.state.support[a] || 0))
+        .slice(0, 10);
+
+      // Winner info for in-circle WINNER! display
+      let winnerInfo = null;
+      if ((this.state.phase === 'round_end' || this.state.phase === 'champion') && this.state.winner) {
+        winnerInfo = {
+          code: this.state.winner,
+          name: Data ? Data.getCountryName(this.state.winner) : this.state.winner.toUpperCase(),
+          wins: this.state.roundWins[this.state.winner] || 1
+        };
+      }
+
       return Object.assign({}, pState, {
         eliminatedPile: this.getEliminatedPile(),
         topWinners: this.getTopWinners(),
+        topScoreboard: topScoreboard,
         safeCountry: this.getTopChatCountry(true),
         eliminationBanner: (this._lastBanner && this._lastBanner.timer > 0) ? this._lastBanner : null,
+        grandChampionTimer: this.grandChampionTimer !== undefined ? this.grandChampionTimer : 240,
+        voteQueueCodes: voteQueueCodes,
+        recentVoters: (this._recentVoters || []).slice(0, 4),
+        winnerInfo: winnerInfo,
         phase: this.state.phase
       });
     },

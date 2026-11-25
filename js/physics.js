@@ -68,7 +68,7 @@
     gapSize: 0,                  // Closed arena (kept for API compatibility)
     gapDegrees: 0,
     centerX: 270,
-    centerY: 370,
+    centerY: 415,
     gravity: 0.02,               // Very light gravity so flags traverse whole circle
     baseRotationSpeed: 0.003,
     rotationSpeed: 0.003,
@@ -107,8 +107,8 @@
       var w = config.width || 540;
       var h = config.height || 960;
       this.centerX = w / 2;
-      this.centerY = Math.round(h * 0.385);
-      this.arenaRadius = Math.min(230, Math.round(w * 0.395));
+      this.centerY = Math.round(h * 0.432);
+      this.arenaRadius = Math.min(220, Math.round(w * 0.398));
       this.baseRadius = this.arenaRadius;
       this.flagRadius = config.flagRadius || 18;
       this.gravity = config.gravity !== undefined ? config.gravity : 0.02;
@@ -119,8 +119,8 @@
     setDimensions: function (w, h) {
       if (!w || !h) return;
       this.centerX = w / 2;
-      this.centerY = Math.round(h * 0.385);
-      this.arenaRadius = Math.min(230, Math.round(w * 0.395));
+      this.centerY = Math.round(h * 0.432);
+      this.arenaRadius = Math.min(220, Math.round(w * 0.398));
       this.baseRadius = this.arenaRadius;
       this._updateAnchorPositions();
     },
