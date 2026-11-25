@@ -426,14 +426,6 @@
         }
       }
 
-      // 3d-b. Handle new string attachments (subtle anchor spark)
-      if (result.attaches && result.attaches.length > 0 && Renderer) {
-        for (var ai = 0; ai < result.attaches.length; ai++) {
-          var att = result.attaches[ai];
-          Renderer.addParticles('spark', att.x, att.y, { color: att.color, count: 4 });
-        }
-      }
-
       // 3e. Handle emoji bounce sounds (throttled)
       if (result.bounces && result.bounces.length > 0 && this.state.soundEnabled && window.FB.Sound) {
         var nowMs = Date.now();

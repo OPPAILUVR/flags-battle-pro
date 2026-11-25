@@ -566,10 +566,14 @@
      * Layer 4 — Closed glowing arena ring.
      */
     _drawArenaRing: function (ctx, cx, cy, r) {
-      // Crisp white glowing ring matching the screen recording
+      // Crisp white ring with fast double-stroke glow (avoids expensive shadowBlur)
       ctx.save();
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.55)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 3.5;
       ctx.beginPath();
@@ -655,10 +659,13 @@
     },
 
     /**
-     * Layer 5a — Draw shared perimeter anchor dots and taut colored strings.
+     * Layer 5a — Draw shared perimeter anchor dots and taut colored strings (batched for 60fps).
      */
     _drawStringsAndAnchors: function (ctx, flags, anchors) {
       if (!anchors || anchors.length === 0) return;
+
+      ctx.save();
+      ctx.lineWidth = 1.5;
 
       for (var i = 0; i < anchors.length; i++) {
         var a = anchors[i];
@@ -666,35 +673,21 @@
 
         if (owner && !owner.eliminated) {
           var color = owner.color || '#ffffff';
-
-          // Draw taut string
-          ctx.save();
-          ctx.strokeStyle = color;
           ctx.globalAlpha = 0.72;
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = color;
           ctx.beginPath();
           ctx.moveTo(owner.x, owner.y);
           ctx.lineTo(a.ax, a.ay);
           ctx.stroke();
-          ctx.restore();
 
-          // Active anchor dot
-          ctx.save();
+          ctx.globalAlpha = 1.0;
           ctx.fillStyle = color;
           ctx.beginPath();
-          ctx.arc(a.ax, a.ay, 2.6, 0, Math.PI * 2);
+          ctx.arc(a.ax, a.ay, 2.2, 0, Math.PI * 2);
           ctx.fill();
-          ctx.restore();
-        } else {
-          // Free / empty anchor dot (available to claim)
-          ctx.save();
-          ctx.fillStyle = 'rgba(255,255,255,0.2)';
-          ctx.beginPath();
-          ctx.arc(a.ax, a.ay, 2.0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
         }
       }
+      ctx.restore();
     },
 
     /**

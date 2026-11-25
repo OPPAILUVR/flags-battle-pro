@@ -213,7 +213,8 @@
             angle: aAngle,
             ax: this.centerX + Math.cos(aAngle) * this.arenaRadius,
             ay: this.centerY + Math.sin(aAngle) * this.arenaRadius,
-            ownerId: i
+            ownerId: i,
+            cooldown: 0
           });
         }
 
@@ -304,6 +305,13 @@
       var activeFlags = this.getActiveFlags();
       if (activeFlags.length <= 1) {
         return result;
+      }
+
+      // Decrement per-anchor cooldowns
+      for (var ak = 0; ak < this.anchors.length; ak++) {
+        if (this.anchors[ak].cooldown > 0) {
+          this.anchors[ak].cooldown = Math.max(0, this.anchors[ak].cooldown - dtSec);
+        }
       }
 
       // 1. Integrate positions & regulate speed
@@ -462,44 +470,68 @@
     },
 
     _fillFreeAnchors: function (result) {
+      // Collect available free anchors (not on cut-anchor cooldown)
+      var free = [];
+      for (var k = 0; k < this.anchors.length; k++) {
+        var a = this.anchors[k];
+        if (a.ownerId === null && a.cooldown <= 0) {
+          free.push(a);
+        }
+      }
+      if (free.length === 0) return;
+
       var active = this.getActiveFlags();
       if (active.length <= 1) return;
 
-      // Round-robin: each surviving flag not currently being cut claims unobstructed free anchors
-      for (var pass = 0; pass < 2; pass++) {
-        for (var i = 0; i < active.length; i++) {
+      // Round-robin: immediately fill unobstructed free anchors (up to 4 passes per frame)
+      for (var pass = 0; pass < 4 && free.length > 0; pass++) {
+        var anyAttached = false;
+        for (var i = 0; i < active.length && free.length > 0; i++) {
           var f = active[i];
-          if (f.eliminated || f.cutCooldown > 0) continue;
+          if (f.eliminated) continue;
           var refAngle = Math.atan2(f.y - this.centerY, f.x - this.centerX);
-          this._tryAttachNearestAnchor(f, refAngle, result);
+          if (this._tryAttachNearestAnchor(f, refAngle, free, result)) {
+            anyAttached = true;
+          }
         }
+        if (!anyAttached) break;
       }
     },
 
-    _tryAttachNearestAnchor: function (flag, refAngle, result) {
-      var best = null;
-      var bestDiff = Infinity;
-      for (var i = 0; i < this.anchors.length; i++) {
-        var a = this.anchors[i];
-        if (a.ownerId !== null) continue;
-        var diff = Math.abs(normalizeAngle(a.angle - refAngle));
-        if (diff < bestDiff && !this._wouldOverlapExistingString(flag, a)) {
-          bestDiff = diff;
-          best = a;
+    _tryAttachNearestAnchor: function (flag, refAngle, free, result) {
+      // Sort candidates by angular distance so we only run intersection check on closest ones
+      var bestIdx = -1;
+      var candidates = [];
+      for (var i = 0; i < free.length; i++) {
+        var a = free[i];
+        candidates.push({
+          idx: i,
+          anchor: a,
+          diff: Math.abs(normalizeAngle(a.angle - refAngle))
+        });
+      }
+      candidates.sort(function (x, y) { return x.diff - y.diff; });
+
+      for (var c = 0; c < candidates.length; c++) {
+        var cand = candidates[c];
+        if (!this._wouldOverlapExistingString(flag, cand.anchor)) {
+          bestIdx = cand.idx;
+          var best = cand.anchor;
+          best.ownerId = flag.id;
+          flag.stringsRemaining++;
+          free.splice(bestIdx, 1);
+          if (result && result.attaches) {
+            result.attaches.push({
+              x: best.ax,
+              y: best.ay,
+              color: flag.color,
+              code: flag.code
+            });
+          }
+          return true;
         }
       }
-      if (best) {
-        best.ownerId = flag.id;
-        flag.stringsRemaining++;
-        if (result && result.attaches) {
-          result.attaches.push({
-            x: best.ax,
-            y: best.ay,
-            color: flag.color,
-            code: flag.code
-          });
-        }
-      }
+      return false;
     },
 
     _checkStringCuts: function (activeFlags, result) {
@@ -554,10 +586,10 @@
               break;
             }
 
-            // Cut the string and free the anchor!
+            // Cut the string and free the anchor (tiny per-anchor cooldown prevents same-frame stalemate)
             anchor.ownerId = null;
+            anchor.cooldown = 0.22;
             owner.stringsRemaining--;
-            owner.cutCooldown = 0.3;
             result.cuts.push({
               x: check.cx,
               y: check.cy,
