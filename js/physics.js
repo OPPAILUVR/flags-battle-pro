@@ -13,7 +13,7 @@
   /*  Constants & Helpers                                                */
   /* ------------------------------------------------------------------ */
 
-  var STRINGS_PER_FLAG = 10;
+  var STRINGS_PER_FLAG = 9;
 
   // Expose as mutable on module for UI control
   var _stringsPerFlagOverride = null;
@@ -241,6 +241,7 @@
           shields: data.shields || 0,
           shieldCooldown: 0,
           attachCooldown: 0,
+          cutCooldown: 0,
           speedBoostTimer: 0,
           graceTimer: 0.4,
           eliminated: false,
@@ -313,6 +314,7 @@
         if (f.graceTimer > 0) f.graceTimer = Math.max(0, f.graceTimer - dtSec);
         if (f.shieldCooldown > 0) f.shieldCooldown = Math.max(0, f.shieldCooldown - dtSec);
         if (f.attachCooldown > 0) f.attachCooldown = Math.max(0, f.attachCooldown - dtSec);
+        if (f.cutCooldown > 0) f.cutCooldown = Math.max(0, f.cutCooldown - dtSec);
         if (f.speedBoostTimer > 0) f.speedBoostTimer = Math.max(0, f.speedBoostTimer - dtSec);
 
         // Light gravity + chaos forces
@@ -346,11 +348,6 @@
 
         f.x += f.vx * dtScale;
         f.y += f.vy * dtScale;
-
-        // Proactively form a new string to the nearest free space on the circle
-        if (this.startingGraceTimer <= 0 && f.attachCooldown <= 0) {
-          this._tryAttachNearestAnchor(f, Math.atan2(f.y - this.centerY, f.x - this.centerX), result);
-        }
 
         // 2. Closed circular wall bounce
         var dx = f.x - this.centerX;
@@ -389,6 +386,8 @@
       // 4. String cutting checks (other flags crossing a flag's strings)
       if (this.startingGraceTimer <= 0) {
         this._checkStringCuts(activeFlags, result);
+        // 5. Surviving flags immediately claim open, non-overlapping space on the circle
+        this._fillFreeAnchors(result);
       }
 
       return result;
@@ -462,6 +461,21 @@
       return false;
     },
 
+    _fillFreeAnchors: function (result) {
+      var active = this.getActiveFlags();
+      if (active.length <= 1) return;
+
+      // Round-robin: each surviving flag not currently being cut claims unobstructed free anchors
+      for (var pass = 0; pass < 2; pass++) {
+        for (var i = 0; i < active.length; i++) {
+          var f = active[i];
+          if (f.eliminated || f.cutCooldown > 0) continue;
+          var refAngle = Math.atan2(f.y - this.centerY, f.x - this.centerX);
+          this._tryAttachNearestAnchor(f, refAngle, result);
+        }
+      }
+    },
+
     _tryAttachNearestAnchor: function (flag, refAngle, result) {
       var best = null;
       var bestDiff = Infinity;
@@ -477,7 +491,6 @@
       if (best) {
         best.ownerId = flag.id;
         flag.stringsRemaining++;
-        flag.attachCooldown = 0.65;
         if (result && result.attaches) {
           result.attaches.push({
             x: best.ax,
@@ -486,9 +499,6 @@
             code: flag.code
           });
         }
-      } else {
-        // Retry shortly if all free anchors are currently blocked by other strings
-        flag.attachCooldown = 0.2;
       }
     },
 
@@ -547,6 +557,7 @@
             // Cut the string and free the anchor!
             anchor.ownerId = null;
             owner.stringsRemaining--;
+            owner.cutCooldown = 0.3;
             result.cuts.push({
               x: check.cx,
               y: check.cy,
