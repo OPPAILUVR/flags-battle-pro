@@ -436,7 +436,7 @@
       if (best) {
         best.ownerId = flag.id;
         flag.stringsRemaining++;
-        flag.attachCooldown = 0.55;
+        flag.attachCooldown = 0.95;
         if (result && result.attaches) {
           result.attaches.push({
             x: best.ax,
