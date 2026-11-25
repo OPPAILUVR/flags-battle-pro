@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flags Battle Pro 3.0</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- LEFT PANEL -->
+    <div class="panel-left">
+      <!-- Header -->
+      <div class="panel-header">
+        <div class="logo">
+          <span class="logo-icon">🏁</span>
+          <span class="logo-text">FLAGS BATTLE</span>
+          <span class="version-badge">Pro 3.0</span>
+        </div>
+        <div class="lang-toggle-header">
+          <button id="btn-lang-en" class="lang-btn active">EN</button>
+          <button id="btn-lang-tr" class="lang-btn">TR</button>
+        </div>
+      </div>
+
+      <!-- Match Controls -->
+      <div class="section">
+        <h3 class="section-title" data-i18n="match">Match</h3>
+        <div class="match-controls">
+          <button id="btn-start" class="btn btn-primary">
+            <span class="btn-icon">▶</span> <span data-i18n="start">Start</span>
+          </button>
+          <button id="btn-reset" class="btn btn-secondary">
+            <span class="btn-icon">↻</span> <span data-i18n="reset">Reset</span>
+          </button>
+        </div>
+        <div class="flag-count-control">
+          <span class="flag-count-label" data-i18n="flagsInArena">Flags in the arena</span>
+          <div class="flag-count-stepper">
+            <button id="btn-flag-minus" class="stepper-btn">−</button>
+            <span id="flag-count-display">100</span>
+            <button id="btn-flag-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label" data-i18n="circleGap">Circle gap</span>
+          <div class="setting-stepper">
+            <button id="btn-gap-minus" class="stepper-btn">−</button>
+            <span id="gap-size-display" class="setting-value">60°</span>
+            <button id="btn-gap-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label" data-i18n="circleSpeed">Circle speed</span>
+          <div class="setting-stepper">
+            <button id="btn-speed-minus" class="stepper-btn">−</button>
+            <span id="speed-display" class="setting-value">1.0x</span>
+            <button id="btn-speed-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label" data-i18n="emojiBounce">Emoji bounce</span>
+          <div class="setting-stepper">
+            <button id="btn-bounce-minus" class="stepper-btn">−</button>
+            <span id="bounce-display" class="setting-value">1.2x</span>
+            <button id="btn-bounce-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Media Controls Row -->
+      <div class="media-controls">
+        <button id="btn-pause" class="media-btn" title="Pause">⏸</button>
+        <button id="btn-sound" class="media-btn active" title="Sound">🔊</button>
+        <button id="btn-voice" class="media-btn active" title="Streamer Voice Hype">📢</button>
+        <button id="btn-mic" class="media-btn" title="TTS">🎤</button>
+        <button id="btn-lang-en-2" class="media-btn lang-media active">EN</button>
+        <button id="btn-lang-tr-2" class="media-btn lang-media">TR</button>
+        <button id="btn-refresh" class="media-btn" title="Refresh">↻</button>
+      </div>
+
+      <!-- Modes -->
+      <div class="section">
+        <h3 class="section-title" data-i18n="modes">Modes</h3>
+
+        <div class="mode-item">
+          <div class="mode-icon">⟳</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="auto">Auto</div>
+            <div class="mode-desc" data-i18n="autoDesc">Next round starts by itself</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-auto">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="mode-item">
+          <div class="mode-icon">⚡</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="lightning">Lightning</div>
+            <div class="mode-desc" data-i18n="lightningDesc">Strikes knock out flags</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-lightning">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="mode-item">
+          <div class="mode-icon">🌀</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="chaos">Chaos</div>
+            <div class="mode-desc" data-i18n="chaosDesc">Random events in the arena</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-chaos">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="mode-item">
+          <div class="mode-icon">💬</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="chat">Chat</div>
+            <div class="mode-desc" data-i18n="chatDesc">Viewers boost their country</div>
+          </div>
+          <button id="btn-yt-settings" class="mini-icon-btn" title="YouTube Chat Settings">⚙️</button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-chat">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="mode-item">
+          <div class="mode-icon">📢</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="voiceHype">Voice Hype</div>
+            <div class="mode-desc" data-i18n="voiceHypeDesc">Interactive calls to save country</div>
+          </div>
+          <button id="btn-voice-preview" class="mini-icon-btn no-rotate" title="Play Voice Callout">▶️</button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-voice-hype" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="voice-gender-selector-row">
+          <span class="voice-gender-label">🎙️ Voice Cast:</span>
+          <select id="select-voice-gender" class="mini-select">
+            <option value="both" selected>Random (Boy & Girl)</option>
+            <option value="boy">Boy Voices</option>
+            <option value="girl">Girl Voices</option>
+            <option value="motu_patlu">Motu Patlu (All Cast)</option>
+            <option value="motu">Motu (Samosa Hero)</option>
+            <option value="patlu">Patlu (Idea Brain)</option>
+            <option value="john">John the Don (Villain)</option>
+            <option value="chingum">Inspector Chingum (Cop)</option>
+            <option value="jhatka">Dr. Jhatka (Scientist)</option>
+            <option value="ghasitaram">Ghasitaram (Veteran)</option>
+            <option value="streamer">Real Streamer Only</option>
+            <option value="all">All Voices (Mix)</option>
+          </select>
+        </div>
+
+        <div class="mode-item">
+          <div class="mode-icon">🎯</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="retentionMode">Viewer Retention</div>
+            <div class="mode-desc" data-i18n="retentionDesc">Hold Nepal, India, Pak, Brazil longer in circle</div>
+          </div>
+          <button id="btn-retention-settings" class="mini-icon-btn" title="Viewer Demographics Settings">⚙️</button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-retention" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="mode-item sub-mode">
+          <div class="mode-icon">⌨</div>
+          <div class="mode-info">
+            <div class="mode-name" data-i18n="testKeys">Test keys</div>
+            <div class="mode-desc" data-i18n="testKeysDesc">Try boosts with keys</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-test-keys">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Arena Themes -->
+      <div class="section">
+        <h3 class="section-title" data-i18n="arena">Arena</h3>
+        <div class="arena-grid" id="arena-grid">
+          <!-- Arena theme thumbnails generated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER PANEL (Stream Viewport) -->
+    <div class="panel-center">
+      <div class="stream-viewport" id="stream-viewport">
+        <canvas id="arena-canvas"></canvas>
+
+        <!-- Floating Safe Country Leader Banner (Most typed in chat) -->
+        <div id="safe-leader-banner" class="safe-leader-banner hidden">
+          <div class="safe-banner-content">
+            <span class="safe-crown-icon">👑</span>
+            <span class="safe-banner-title" data-i18n="safeLeader">SAFE (CHAT LEADER):</span>
+            <img id="safe-leader-flag" class="safe-leader-flag-img" src="" alt="">
+            <span id="safe-leader-name" class="safe-leader-name">Turkey</span>
+            <span id="safe-leader-votes" class="safe-leader-votes">0</span>
+          </div>
+        </div>
+
+        <!-- Floating Live Chat Supporter Toast (Screenshot 2 style) -->
+        <div id="chat-boost-toast" class="chat-boost-toast hidden">
+          <div class="toast-content">
+            <span class="toast-avatar">💬</span>
+            <span id="toast-author" class="toast-author">ayse_k</span>
+            <span class="toast-action">sends</span>
+            <img id="toast-flag" class="toast-flag-img" src="" alt="">
+            <span id="toast-country" class="toast-country">Turkey</span>
+            <span class="toast-plus">+1</span>
+          </div>
+        </div>
+
+        <!-- Round Winner Overlay (pops when round completes) -->
+        <div id="round-winner-overlay" class="round-winner-overlay hidden">
+          <div class="round-winner-card">
+            <div class="winner-header">
+              <span class="winner-trophy-icon">🏆</span>
+              <span class="winner-round-badge">ROUND <span id="round-winner-number">1</span> WINNER</span>
+            </div>
+            <div class="winner-flag-container">
+              <img id="round-winner-flag-img" class="round-winner-flag" src="" alt="">
+              <div class="winner-crown-mote">👑</div>
+            </div>
+            <h1 id="round-winner-country-name" class="round-winner-name">India</h1>
+            <div class="winner-stats-pill">
+              <span id="round-winner-wins-count">1</span> <span data-i18n="wins">WINS</span>
+            </div>
+            <div class="winner-auto-bar">
+              <span id="round-winner-footer-text">Click anywhere or wait for next round</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Champion Overlay -->
+        <div id="champion-overlay" class="champion-overlay hidden">
+          <div class="champion-content">
+            <h1 class="champion-title">CHAMPION</h1>
+            <div class="champion-wins"><span id="champion-wins-count">3</span> WINS</div>
+            <img id="champion-flag-img" class="champion-flag" src="" alt="">
+            <h2 id="champion-country-name" class="champion-name"></h2>
+            <div class="winner-auto-bar" style="margin-top: 14px;">
+              <span id="champion-footer-text">Next battle starting soon... or click anywhere to skip</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel-right">
+      <!-- Counters -->
+      <div class="counters">
+        <div class="counter">
+          <span id="remaining-count" class="counter-number">0</span>
+          <span class="counter-label" data-i18n="remaining">remaining</span>
+        </div>
+        <div class="counter eliminated">
+          <span id="eliminated-count" class="counter-number">0</span>
+          <span class="counter-label" data-i18n="eliminated">eliminated</span>
+        </div>
+      </div>
+
+      <!-- Last Eliminated -->
+      <div class="last-eliminated" id="last-eliminated-box">
+        <span class="last-dot">●</span>
+        <img id="last-eliminated-flag" class="last-flag-img" src="" alt="">
+        <span id="last-eliminated-name"><span data-i18n="last">Last</span>: ---</span>
+      </div>
+
+      <!-- Round Info -->
+      <div class="round-info">
+        <div class="round-display">
+          <span data-i18n="round">Round</span> <span id="round-number">1</span>/<span id="round-total">∞</span>
+        </div>
+        <div class="round-flags">
+          <span id="flags-in-round">0</span> <span data-i18n="flags">flags</span>
+        </div>
+      </div>
+
+      <!-- Scoreboard -->
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title" data-i18n="scoreboard">Scoreboard</h3>
+          <span class="section-subtitle" data-i18n="topN">top 5</span>
+        </div>
+        <div id="scoreboard-list" class="scoreboard-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button id="tab-round-scores" class="tab-btn active" data-i18n="roundScores">Round scores</button>
+        <button id="tab-top-performers" class="tab-btn" data-i18n="topPerformers">Top performers</button>
+      </div>
+
+      <div id="round-scores-list" class="scores-list">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- All Time -->
+      <div class="all-time">
+        <h3 class="section-title" data-i18n="allTime">All time</h3>
+        <div class="all-time-grid">
+          <div class="all-time-stat">
+            <span id="all-time-rounds" class="all-time-number">0</span>
+            <span class="all-time-label" data-i18n="rounds">rounds</span>
+          </div>
+          <div class="all-time-stat highlight">
+            <span id="all-time-eliminations" class="all-time-number">0</span>
+            <span class="all-time-label" data-i18n="eliminations">eliminations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="section">
+        <h3 class="section-title" data-i18n="tools">Tools</h3>
+        <div class="tool-item">
+          <span class="tool-icon">🏆</span>
+          <span data-i18n="champions">Champions</span>
+        </div>
+        <div class="tool-item" id="tool-messages">
+          <span class="tool-icon">💬</span>
+          <span data-i18n="messages">Messages</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube Live Chat Connect Modal -->
+  <div id="yt-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-yt-icon">▶</span>
+          <h2 class="modal-title" data-i18n="youtubeChatConnect">YouTube Chat Connect</h2>
+        </div>
+        <button id="btn-close-yt-modal" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-help-text" data-i18n="chatHelp">
+          Viewers send flag emojis (e.g. 🇹🇷), country names, or KKTC to boost their flag in real time!
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="apiKey">YouTube API Key</label>
+          <input type="password" id="yt-api-key" class="form-input" placeholder="AIzaSy..." autocomplete="off">
+          <span class="form-hint">From Google Cloud Console (YouTube Data API v3)</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="videoIdOrUrl">Live Stream URL or Video ID</label>
+          <input type="text" id="yt-video-id" class="form-input" placeholder="https://youtube.com/watch?v=... or Video ID">
+        </div>
+
+        <div class="yt-connect-bar">
+          <button id="btn-yt-connect" class="btn btn-primary" data-i18n="connect">Connect</button>
+          <button id="btn-yt-disconnect" class="btn btn-secondary hidden" data-i18n="disconnect">Disconnect</button>
+          <div id="yt-status-badge" class="status-badge disconnected" data-i18n="disconnected">Disconnected 🔴</div>
+        </div>
+        <div id="yt-status-detail" class="status-detail-text"></div>
+
+        <hr class="modal-hr">
+
+        <h3 class="modal-section-title" data-i18n="testMessage">Test Live Chat Simulator</h3>
+        <div class="test-chat-box">
+          <input type="text" id="test-chat-author" class="form-input test-author" placeholder="Viewer (e.g. ayse_k)" value="ayse_k">
+          <input type="text" id="test-chat-msg" class="form-input test-msg" placeholder="Message (e.g. 🇹🇷, KKTC, Brazil)">
+          <button id="btn-send-test-chat" class="btn btn-secondary" data-i18n="send">Send</button>
+        </div>
+
+        <h3 class="modal-section-title" data-i18n="recentChatBoosts">Recent Live Chat Boosts</h3>
+        <div id="yt-chat-feed" class="chat-feed-list">
+          <div class="chat-feed-empty">No live chat messages yet. Connect to a stream or send a test message!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Viewer Demographics & Retention Modal -->
+  <div id="retention-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-yt-icon">🎯</span>
+          <h2 class="modal-title" data-i18n="viewerDemographics">Audience Retention & Demographics</h2>
+        </div>
+        <button id="btn-close-retention-modal" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-help-text">
+          Flags of countries where your viewers are coming from are held longer in the arena to entertain your audience and boost live stream retention.
+        </p>
+
+        <h3 class="modal-section-title">Active Retention Flags (Held Longer in Circle)</h3>
+        <div id="retention-pills-list" class="retention-pills-container">
+          <!-- Populated by JS: 🇳🇵 Nepal ×, 🇮🇳 India ×, etc. -->
+        </div>
+
+        <div class="add-country-bar">
+          <input type="text" id="input-add-retention" class="form-input" placeholder="Country code or name (e.g. BD, ID, TR, USA)">
+          <button id="btn-add-retention" class="btn btn-secondary">+ Add</button>
+          <button id="btn-reset-retention" class="btn btn-ghost" title="Reset to defaults">Reset Defaults</button>
+        </div>
+
+        <hr class="modal-hr">
+
+        <h3 class="modal-section-title">Live Chat Viewer Origin & Analytics</h3>
+        <div class="demographics-stats-box">
+          <div id="demographics-table-container">
+            <!-- Table showing countries chatting, count, and 1-click + Retain button -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/youtube-chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "gender": "streamer",
+    "title": "अपनी कंट्री को बचाओ! (Real Streamer)",
+    "type": "human_real",
+    "start": 0.0,
+    "end": 4.2,
+    "text": "अपनी कंट्री को बचाओ! ... इमोजी जल्दी जल्दी डालो!",
+    "transcription": "Apni country ko bachao! ... Emoji jaldi jaldi dalo!"
+  },
+  {
+    "id": 2,
+    "gender": "streamer",
+    "title": "सुपर चैट अलर्ट! (Real Streamer)",
+    "type": "human_real",
+    "start": 4.2,
+    "end": 8.8,
+    "text": "सुपर चैट से डालो जल्दी ... जो अपनी कंट्री तुम्हारी कंट्री सर्कल के अंदर है!",
+    "transcription": "Super chat se dalo jaldi ... jo apni country tumhari country circle ke andar hai!"
+  },
+  {
+    "id": 3,
+    "gender": "streamer",
+    "title": "इंडिया पाकिस्तान राइवल्स! (Real Streamer)",
+    "type": "human_real",
+    "start": 8.8,
+    "end": 14.0,
+    "text": "इंडिया, पाकिस्तान ... जल्दी करो! ... जल्दी जल्दी!",
+    "transcription": "India, Pakistan ... jaldi karo! ... Jaldi jaldi!"
+  },
+  {
+    "id": 4,
+    "gender": "streamer",
+    "title": "कमेंट और शेयर करो! (Real Streamer)",
+    "type": "human_real",
+    "start": 14.0,
+    "end": 20.2,
+    "text": "जो भी कंट्री सर्कल के बीच में आना चाहती है ... कमेंट करो, लाइक करो, शेयर करो इस वीडियो को!",
+    "transcription": "Jo bhi country circle ke beech me aana chahti hai ... comment karo, like karo, share karo is video ko!"
+  },
+  {
+    "id": 5,
+    "gender": "streamer",
+    "title": "दबा दब फुल स्पीड! (Real Streamer)",
+    "type": "human_real",
+    "start": 20.2,
+    "end": 28.2,
+    "text": "जल्दी इमोजी टाइप करो ... तेज़ी से तेज़ी से ... दबा दब दबा दब! ... फुल स्पीड से टाइप करो!",
+    "transcription": "Jaldi emoji type karo ... tezi se tezi se ... daba dab daba dab! ... Full speed se type karo!"
+  },
+  {
+    "id": 6,
+    "gender": "girl",
+    "title": "अरे सुनो सुनो! (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे सुनो सुनो! ... अरे देखो यार! ... तुम्हारी कंट्री नीचे फिसल रही है! ... जल्दी से इमोजी भेजो चैट में!",
+    "transcription": "Are suno suno! ... Are dekho yaar! ... Tumhari country neeche fisal rahi hai! ... Jaldi se emoji bhejo chat mein!"
+  },
+  {
+    "id": 7,
+    "gender": "girl",
+    "title": "ओह माय गॉड बचाओ! (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "ओह माय गॉड! ... ये क्या हो रहा है! ... नेपाल और इंडिया वाले, जल्दी टाइप करो यार! ... बचा लो अपनी कंट्री को!",
+    "transcription": "Oh my god! ... Ye kya ho raha hai! ... Nepal aur India wale, jaldi type karo yaar! ... Bacha lo apni country ko!"
+  },
+  {
+    "id": 8,
+    "gender": "girl",
+    "title": "चैट में इतनी शांति क्यों है? (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे भाई साहब! ... चैट में इतनी शांति क्यों है? ... जल्दी जल्दी अपना फ्लैग भेजो! ... बिल्कुल टाइम नहीं है!",
+    "transcription": "Are bhai sahab! ... Chat mein itni shanti kyu hai? ... Jaldi jaldi apna flag bhejo! ... Bilkul time nahi hai!"
+  },
+  {
+    "id": 9,
+    "gender": "girl",
+    "title": "चैट में आग लगा दी! (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "यस यस यस! ... क्या बात है! ... ब्राज़ील और पाकिस्तान वालों ने चैट में आग लगा दी! ... सुपर चैट से शील्ड ले लो जल्दी!",
+    "transcription": "Yes yes yes! ... Kya baat hai! ... Brazil aur Pakistan walo ne chat mein aag laga di! ... Super chat se shield le lo jaldi!"
+  },
+  {
+    "id": 10,
+    "gender": "girl",
+    "title": "सर्कल का गैप खुल गया! (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे रुको रुको! ... सर्कल का गैप खुल गया है! ... अपनी कंट्री को बाहर जाने से बचाना है ... तो फुल स्पीड से कमेंट करो!",
+    "transcription": "Are ruko ruko! ... Circle ka gap khul gaya hai! ... Apni country ko bahar jane se bachana hai ... to full speed se comment karo!"
+  },
+  {
+    "id": 11,
+    "gender": "girl",
+    "title": "कौन जीतेगा आज? (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "ओहो! ... कौन सी कंट्री जीतेगी आज? ... जल्दी से लाइक करो, शेयर करो ... और अपना कंट्री नेम चैट में ड्रॉप करो!",
+    "transcription": "Oho! ... Kaun si country jeetegi aaj? ... Jaldi se like karo, share karo ... aur apna country name chat mein drop karo!"
+  },
+  {
+    "id": 12,
+    "gender": "girl",
+    "title": "Drop Flags Right Now! (Girl Hype)",
+    "voice": "en-IN-NeerjaExpressiveNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "Wait wait wait! ... Your country is right near the gap! ... Spam your flag emojis in the chat right now!",
+    "transcription": "Wait wait wait! ... Your country is right near the gap! ... Spam your flag emojis in the chat right now!"
+  },
+  {
+    "id": 13,
+    "gender": "girl",
+    "title": "Cheer For Your Flag! (Girl Hype)",
+    "voice": "en-IN-NeerjaExpressiveNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "Come on guys! ... Cheer for your country! ... Drop those flag emojis right now in the chat and save them!",
+    "transcription": "Come on guys! ... Cheer for your country! ... Drop those flag emojis right now in the chat and save them!"
+  },
+  {
+    "id": 14,
+    "gender": "girl",
+    "title": "लास्ट के कुछ सेकंड! (Girl Streamer)",
+    "voice": "hi-IN-SwaraNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "अरे बाप रे! ... लास्ट के कुछ ही सेकंड बचे हैं! ... जल्दी करो, जल्दी करो! ... अपनी कंट्री को विनर बनाओ यार!",
+    "transcription": "Are baap re! ... Last ke kuch hi second bache hain! ... Jaldi karo, jaldi karo! ... Apni country ko winner banao yaar!"
+  },
+  {
+    "id": 15,
+    "gender": "boy",
+    "title": "स्क्रीन देखो भाई! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+3%",
+    "pitch": "+0Hz",
+    "text": "अरे भाई भाई भाई! ... ज़रा स्क्रीन देखो! ... तुम्हारी कंट्री बाहर निकलने वाली है! ... जल्दी इमोजी स्पैम करो यार!",
+    "transcription": "Are bhai bhai bhai! ... Zara screen dekho! ... Tumhari country bahar nikalne wali hai! ... Jaldi emoji spam karo yaar!"
+  },
+  {
+    "id": 16,
+    "gender": "boy",
+    "title": "महामुकाबला शुरू! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "ओ तेरी! ... इंडिया और पाकिस्तान का महामुकाबला चल रहा है! ... देखते हैं कौन चैट में सबसे आगे निकलता है!",
+    "transcription": "O teri! ... India aur Pakistan ka maha mukabla chal raha hai! ... Dekhte hain kaun chat mein sabse aage nikalta hai!"
+  },
+  {
+    "id": 17,
+    "gender": "boy",
+    "title": "दबा दब टाइप करो! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे क्या कर रहे हो यार? ... दबा दब टाइप करो ना! ... फुल स्पीड से चैट भर दो अपनी कंट्री से!",
+    "transcription": "Are kya kar rahe ho yaar? ... Daba dab type karo na! ... Full speed se chat bhar do apni country se!"
+  },
+  {
+    "id": 18,
+    "gender": "boy",
+    "title": "तूफान ला दिया चैट में! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "ओ भाई साहब! ... ये तो बिल्कुल सेफ हो गई! ... चैट में तूफान ला दिया तुम लोगों ने! ... ओपी बोलते भाई ओपी!",
+    "transcription": "O bhai sahab! ... Ye to bilkul safe ho gayi! ... Chat mein toofan la diya tum logo ne! ... OP bolte bhai OP!"
+  },
+  {
+    "id": 19,
+    "gender": "boy",
+    "title": "सुपर चैट ठोको! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे सुनो भाई लोग! ... जिसको भी अपनी कंट्री को सर्कल के अंदर रखना है ... फटाफट से कमेंट करो और सुपर चैट ठोको!",
+    "transcription": "Are suno bhai log! ... Jisko bhi apni country ko circle ke andar rakhna hai ... fatafat se comment karo aur super chat thoko!"
+  },
+  {
+    "id": 20,
+    "gender": "boy",
+    "title": "गैप घूम रहा है! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+3%",
+    "pitch": "+0Hz",
+    "text": "अरे अरे अरे! ... गैप घूम रहा है भाई! ... जल्दी से अपनी कंट्री को धक्का मारो अंदर! ... फुल स्पीड!",
+    "transcription": "Are are are! ... Gap ghum raha hai bhai! ... Jaldi se apni country ko dhakka maro andar! ... Full speed!"
+  },
+  {
+    "id": 21,
+    "gender": "boy",
+    "title": "Amazing Comeback! (Boy Hype)",
+    "voice": "en-IN-PrabhatNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "Yes! Amazing comeback! ... Look at that bounce! ... Keep spamming your country flags in the chat right now!",
+    "transcription": "Yes! Amazing comeback! ... Look at that bounce! ... Keep spamming your country flags in the chat right now!"
+  },
+  {
+    "id": 22,
+    "gender": "boy",
+    "title": "कहाँ सो रहे हो सब? (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "अरे कहाँ सो रहे हो सब लोग? ... नेपाल, ब्राज़ील, बांग्लादेश! ... जल्दी से अपना झंडा भेजो चैट में!",
+    "transcription": "Are kahan so rahe ho sab log? ... Nepal, Brazil, Bangladesh! ... Jaldi se apna jhanda bhejo chat mein!"
+  },
+  {
+    "id": 23,
+    "gender": "boy",
+    "title": "लास्ट राउंड क्लैश! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+3%",
+    "pitch": "+1Hz",
+    "text": "अरे भाई लास्ट राउंड चल रहा है! ... जो लास्ट तक टिकेगा वही बनेगा आज का चैंपियन! ... लेट्स गो!",
+    "transcription": "Are bhai last round chal raha hai! ... Jo last tak tikega wahi banega aaj ka champion! ... Lets go!"
+  },
+  {
+    "id": 24,
+    "gender": "boy",
+    "title": "फुल पावर लाइक ठोको! (Boy Streamer)",
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "text": "लाइक ठोको, शेयर करो! ... और फुल पावर से चैट में अपनी कंट्री का नाम लिखो! ... रुकना नहीं है बिल्कुल!",
+    "transcription": "Like thoko, share karo! ... Aur full power se chat mein apni country ka naam likho! ... Rukna nahi hai bilkul!"
+  },
+  {
+    "id": 25,
+    "gender": "motu_patlu",
+    "character": "motu",
+    "character_name": "Motu",
+    "file": "audio/prompts/prompt_25.mp3",
+    "title": "अरे बाप रे स्क्रीन देखो! (Motu)",
+    "text": "अरे भैया! अरे बाप रे बाप! ज़रा स्क्रीन देखो तुम लोग! तुम्हारी कंट्री बाहर फिसल रही है यार! जल्दी से चैट में झंडा भेजो, दबा-दब टाइप करो ना!"
+  },
+  {
+    "id": 26,
+    "gender": "motu_patlu",
+    "character": "motu",
+    "character_name": "Motu",
+    "file": "audio/prompts/prompt_26.mp3",
+    "title": "समोसे की कसम बचाओ! (Motu)",
+    "text": "अरे पतलू! समोसे की कसम, अपनी कंट्री को बाहर मत जाने देना यार! सारे दर्शक जल्दी से चैट में अपना फ्लैग भेजो और कंट्री को सेफ करो!"
+  },
+  {
+    "id": 27,
+    "gender": "motu_patlu",
+    "character": "motu",
+    "character_name": "Motu",
+    "file": "audio/prompts/prompt_27.mp3",
+    "title": "दिमाग की बत्ती गुल! (Motu)",
+    "text": "खाली पेट मेरे दिमाग की बत्ती नहीं जलती! अरे तुम लोग जल्दी-जल्दी चैट में इमोजी स्पैम करो और अपनी कंट्री को विनर बनाओ यार!"
+  },
+  {
+    "id": 28,
+    "gender": "motu_patlu",
+    "character": "motu",
+    "character_name": "Motu",
+    "file": "audio/prompts/prompt_28.mp3",
+    "title": "फुल स्पीड से लाइक ठोको! (Motu)",
+    "text": "अरे क्या कर रहे हो भाई?! नेपाल, इंडिया, पाकिस्तान, ब्राज़ील वाले कहां सो रहे हो? जल्दी से लाइक ठोको और चैट में अपनी कंट्री का नाम लिखो!"
+  },
+  {
+    "id": 29,
+    "gender": "motu_patlu",
+    "character": "patlu",
+    "character_name": "Patlu",
+    "file": "audio/prompts/prompt_29.mp3",
+    "title": "ज़बरदस्त आइडिया! (Patlu)",
+    "text": "आइडिया! मोटू मेरे पास एक ज़बरदस्त आइडिया है! अरे व्यूअर्स, अगर अपनी कंट्री को बचाना है ना... तो अभी के अभी चैट में फ्लैग इमोजी की बारिश कर दो! लेट्स गो!"
+  },
+  {
+    "id": 30,
+    "gender": "motu_patlu",
+    "character": "patlu",
+    "character_name": "Patlu",
+    "file": "audio/prompts/prompt_30.mp3",
+    "title": "सर्कल का गैप घूम रहा है! (Patlu)",
+    "text": "अरे मोटू संभल के! सर्कल का गैप घूम रहा है! सब दर्शक जल्दी से स्क्रीन पर ध्यान दो और फुल स्पीड से वोट करके अपनी कंट्री को धक्का मारो अंदर!"
+  },
+  {
+    "id": 31,
+    "gender": "motu_patlu",
+    "character": "patlu",
+    "character_name": "Patlu",
+    "file": "audio/prompts/prompt_31.mp3",
+    "title": "पतलू की मास्टर स्ट्रेटेजी (Patlu)",
+    "text": "पतलू की सलाह मानो भाई लोग! लास्ट राउंड चल रहा है! जल्दी से वीडियो को शेयर करो और चैट में अपनी कंट्री का नाम भर दो!"
+  },
+  {
+    "id": 32,
+    "gender": "motu_patlu",
+    "character": "john",
+    "character_name": "John the Don",
+    "file": "audio/prompts/prompt_32.mp3",
+    "title": "डॉन का आर्डर! (John the Don)",
+    "text": "अरे ए चमचे! ज़रा स्क्रीन देखो रे! ये पूरा सर्कल और ट्रॉफी डॉन की है! जिसको भी अपनी कंट्री को जिंदा रखना है... सीधा चैट में नाम ठोक डालो! इट्स एन आर्डर!"
+  },
+  {
+    "id": 33,
+    "gender": "motu_patlu",
+    "character": "john",
+    "character_name": "John the Don",
+    "file": "audio/prompts/prompt_33.mp3",
+    "title": "डॉन का जलवा! (John the Don)",
+    "text": "देखा डॉन का जलवा! इसे बोलते हैं डॉन का पावर! अरे दम है तो अपनी कंट्री को बचा के दिखाओ! जल्दी-जल्दी कमेंट करो बे!"
+  },
+  {
+    "id": 34,
+    "gender": "motu_patlu",
+    "character": "john",
+    "character_name": "John the Don",
+    "file": "audio/prompts/prompt_34.mp3",
+    "title": "डॉन को गुस्सा आ रहा है! (John the Don)",
+    "text": "अरे क्या रे! सब लोग सो रहे हो क्या?! जब डॉन को गुस्सा आता है तो धरती कांप उठती है! फटाफट चैट में अपनी कंट्री का नाम लिखो वरना सबको बाहर फेंक दूंगा!"
+  },
+  {
+    "id": 35,
+    "gender": "motu_patlu",
+    "character": "john",
+    "character_name": "John the Don",
+    "file": "audio/prompts/prompt_35.mp3",
+    "title": "चैट में आग लगा दो! (John the Don)",
+    "text": "अरे सुनो भाई लोग! जॉन बनेगा डॉन! अगर अपनी कंट्री को चैंपियन बनाना है, तो चैट में आग लगा दो! फुल स्पीड!"
+  },
+  {
+    "id": 36,
+    "gender": "motu_patlu",
+    "character": "chamcha",
+    "character_name": "Chamcha",
+    "file": "audio/prompts/prompt_36.mp3",
+    "title": "बॉस बॉस सही पकड़े हैं! (Chamcha)",
+    "text": "अरे बॉस बॉस! सही पकड़े हैं! वो देखो स्क्रीन पे सब लोग दबा-दब कमेंट करके अपनी कंट्री को ऊपर खींच रहे हैं! क्या बात है!"
+  },
+  {
+    "id": 37,
+    "gender": "motu_patlu",
+    "character": "chamcha",
+    "character_name": "Chamcha",
+    "file": "audio/prompts/prompt_37.mp3",
+    "title": "बॉस देखो चैट में तूफान! (Chamcha)",
+    "text": "बॉस बॉस ज़रा चैट देखो! व्यूअर्स ने तो तूफान ला दिया! हर कोई अपने देश का झंडा भेज रहा है! शाबाश भाई लोग!"
+  },
+  {
+    "id": 38,
+    "gender": "motu_patlu",
+    "character": "chingum",
+    "character_name": "Inspector Chingum",
+    "file": "audio/prompts/prompt_38.mp3",
+    "title": "चिंगम के चंगुल से बचना इम्पॉसिबल! (Inspector Chingum)",
+    "text": "आयना! डोंट एंग्री मी! ये कौन अपनी कंट्री को बाहर जाने दे रहा है?! चिंगम के चंगुल से कोई नहीं बच सकता! फटाफट चैट में अपना फ्लैग डालो, इट्स माय ऑर्डर!"
+  },
+  {
+    "id": 39,
+    "gender": "motu_patlu",
+    "character": "chingum",
+    "character_name": "Inspector Chingum",
+    "file": "audio/prompts/prompt_39.mp3",
+    "title": "कानून के हाथ बहुत लंबे हैं! (Inspector Chingum)",
+    "text": "हे हे, आयना! कानून के हाथ बहुत लंबे हैं! जो चैट में अपनी कंट्री का नाम नहीं लिखेगा, चिंगम उसे अरेस्ट कर लेगा! जल्दी वोट करो!"
+  },
+  {
+    "id": 40,
+    "gender": "motu_patlu",
+    "character": "chingum",
+    "character_name": "Inspector Chingum",
+    "file": "audio/prompts/prompt_40.mp3",
+    "title": "चिंगम का एनकाउंटर अलर्ट! (Inspector Chingum)",
+    "text": "आयना! ये मुकाबला बहुत कड़क चल रहा है! अपनी कंट्री को बाहर जाने से रोको, ये इंस्पेक्टर चिंगम का आर्डर है! जल्दी इमोजी डालो!"
+  },
+  {
+    "id": 41,
+    "gender": "motu_patlu",
+    "character": "jhatka",
+    "character_name": "Dr. Jhatka",
+    "file": "audio/prompts/prompt_41.mp3",
+    "title": "झटका का नया गैजेट! (Dr. Jhatka)",
+    "text": "ओए पाजी! तुसी कमाल करते हो ji! अपनी कंट्री को धक्का मारो अंदर! जल्दी से लाइक ठोको और चैट में आग लगा दो ji!"
+  },
+  {
+    "id": 42,
+    "gender": "motu_patlu",
+    "character": "jhatka",
+    "character_name": "Dr. Jhatka",
+    "file": "audio/prompts/prompt_42.mp3",
+    "title": "कसम पाजी की सेफ रहेगी! (Dr. Jhatka)",
+    "text": "ओए शावा! कसम पाजी की, ऐसा मुकाबला आज तक नहीं देखा! सब लोग फुल स्पीड से अपनी कंट्री को वोट करो ji, तुम्हारी कंट्री बिल्कुल सेफ रहेगी!"
+  },
+  {
+    "id": 43,
+    "gender": "motu_patlu",
+    "character": "ghasitaram",
+    "character_name": "Ghasitaram",
+    "file": "audio/prompts/prompt_43.mp3",
+    "title": "बीस साल का तजुर्बा! (Ghasitaram)",
+    "text": "अरे हमरा बीस साल का तजुर्बा है भाई! जो लास्ट तक टिका रहेगा वही चैंपियन बनेगा! अरे जल्दी-जल्दी वोट करो, बिल्कुल देर मत करो!"
+  },
+  {
+    "id": 44,
+    "gender": "motu_patlu",
+    "character": "ghasitaram",
+    "character_name": "Ghasitaram",
+    "file": "audio/prompts/prompt_44.mp3",
+    "title": "घसीटाराम की पक्की सलाह! (Ghasitaram)",
+    "text": "अरे हम पहले ही कहे थे! जिसका चैट में सबसे ज्यादा सपोर्ट होगा वही ट्रॉफी उठाएगा! जल्दी से लाइक और कमेंट करो भाई, हमारा तजुर्बा कभी गलत नहीं होता!"
+  }
+]
