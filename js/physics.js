@@ -43,6 +43,20 @@
   }
 
   /**
+   * Returns true if segment (ax,ay)-(bx,by) strictly intersects (cx,cy)-(dx,dy).
+   */
+  function segmentsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
+    var d1x = bx - ax, d1y = by - ay;
+    var d2x = dx - cx, d2y = dy - cy;
+    var denom = d1x * d2y - d1y * d2x;
+    if (Math.abs(denom) < 1e-6) return false;
+    var qpx = cx - ax, qpy = cy - ay;
+    var t = (qpx * d2y - qpy * d2x) / denom;
+    var u = (qpx * d1y - qpy * d1x) / denom;
+    return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
+  }
+
+  /**
    * Shortest distance squared from point (px, py) to segment (ax, ay)-(bx, by).
    * Returns { distSq, cx, cy }.
    */
@@ -421,6 +435,33 @@
       }
     },
 
+    _wouldOverlapExistingString: function (flag, anchor) {
+      var x1 = flag.x, y1 = flag.y;
+      var x2 = anchor.ax, y2 = anchor.ay;
+
+      // Do not attach through another flag's body
+      for (var j = 0; j < this.flags.length; j++) {
+        var otherFlag = this.flags[j];
+        if (otherFlag.id === flag.id || otherFlag.eliminated) continue;
+        var check = pointToSegmentDistSq(otherFlag.x, otherFlag.y, x1, y1, x2, y2);
+        if (check.distSq <= otherFlag.radius * otherFlag.radius) {
+          return true;
+        }
+      }
+
+      // Do not cross any existing intact string
+      for (var k = 0; k < this.anchors.length; k++) {
+        var existing = this.anchors[k];
+        if (existing.ownerId === null || existing.id === anchor.id) continue;
+        var owner = this.flags[existing.ownerId];
+        if (!owner || owner.eliminated) continue;
+        if (segmentsIntersect(x1, y1, x2, y2, owner.x, owner.y, existing.ax, existing.ay)) {
+          return true;
+        }
+      }
+      return false;
+    },
+
     _tryAttachNearestAnchor: function (flag, refAngle, result) {
       var best = null;
       var bestDiff = Infinity;
@@ -428,7 +469,7 @@
         var a = this.anchors[i];
         if (a.ownerId !== null) continue;
         var diff = Math.abs(normalizeAngle(a.angle - refAngle));
-        if (diff < bestDiff) {
+        if (diff < bestDiff && !this._wouldOverlapExistingString(flag, a)) {
           bestDiff = diff;
           best = a;
         }
@@ -436,7 +477,7 @@
       if (best) {
         best.ownerId = flag.id;
         flag.stringsRemaining++;
-        flag.attachCooldown = 0.95;
+        flag.attachCooldown = 0.65;
         if (result && result.attaches) {
           result.attaches.push({
             x: best.ax,
@@ -445,6 +486,9 @@
             code: flag.code
           });
         }
+      } else {
+        // Retry shortly if all free anchors are currently blocked by other strings
+        flag.attachCooldown = 0.2;
       }
     },
 
