@@ -77,7 +77,8 @@
      */
     init: function (canvas) {
       this.canvas = canvas;
-      this.ctx    = canvas.getContext('2d');
+      this.ctx    = canvas.getContext('2d', { alpha: false, desynchronized: true }) || canvas.getContext('2d');
+      this._flagSprites = {};
       canvas.width  = 540;
       canvas.height = 960;
       this.setTheme('live');
@@ -436,7 +437,7 @@
      * Layer 7 — Bottom HUD: VOTES 10-slot row, CTA, and 4-row Live Voter Feed.
      */
     _drawBottomHUD: function (ctx, W, H, arenaBottomY, voteQueueCodes, recentVoters) {
-      var votesY = Math.max(arenaBottomY + 26, 660);
+      var votesY = Math.max(arenaBottomY + 18, 676);
 
       // "VOTES" + 10 circular slots
       ctx.save();
@@ -659,89 +660,112 @@
     },
 
     /**
-     * Layer 5a — Draw shared perimeter anchor dots and taut colored strings (batched for 60fps).
+     * Layer 5a — Draw shared perimeter anchor dots and taut colored strings (batched per flag for 60fps).
      */
     _drawStringsAndAnchors: function (ctx, flags, anchors) {
       if (!anchors || anchors.length === 0) return;
 
+      // Group anchors by active owner flag to batch path strokes (8 strokes instead of 88!)
+      var byOwner = [];
+      for (var fIdx = 0; fIdx < flags.length; fIdx++) {
+        byOwner.push([]);
+      }
+      for (var i = 0; i < anchors.length; i++) {
+        var a = anchors[i];
+        if (a.ownerId !== null && a.ownerId !== undefined && byOwner[a.ownerId]) {
+          byOwner[a.ownerId].push(a);
+        }
+      }
+
       ctx.save();
       ctx.lineWidth = 1.5;
 
-      for (var i = 0; i < anchors.length; i++) {
-        var a = anchors[i];
-        var owner = (a.ownerId !== null && a.ownerId !== undefined) ? flags[a.ownerId] : null;
+      for (var id = 0; id < flags.length; id++) {
+        var owner = flags[id];
+        if (!owner || owner.eliminated) continue;
+        var list = byOwner[id];
+        if (!list || list.length === 0) continue;
 
-        if (owner && !owner.eliminated) {
-          var color = owner.color || '#ffffff';
-          ctx.globalAlpha = 0.72;
-          ctx.strokeStyle = color;
-          ctx.beginPath();
+        var color = owner.color || '#ffffff';
+
+        // Batch all strings for this flag into 1 stroke()
+        ctx.globalAlpha = 0.72;
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        for (var k = 0; k < list.length; k++) {
           ctx.moveTo(owner.x, owner.y);
-          ctx.lineTo(a.ax, a.ay);
-          ctx.stroke();
-
-          ctx.globalAlpha = 1.0;
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.arc(a.ax, a.ay, 2.2, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.lineTo(list[k].ax, list[k].ay);
         }
+        ctx.stroke();
+
+        // Batch all anchor dots for this flag into 1 fill()
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (var m = 0; m < list.length; m++) {
+          ctx.moveTo(list[m].ax + 2.2, list[m].ay);
+          ctx.arc(list[m].ax, list[m].ay, 2.2, 0, Math.PI * 2);
+        }
+        ctx.fill();
       }
       ctx.restore();
     },
 
     /**
-     * Helper — Draw a circular clipped flag with colored ring.
+     * Pre-render circular flag onto an offscreen GPU-cached sprite canvas to avoid per-frame ctx.clip().
+     */
+    _getCircularFlagSprite: function (code, img) {
+      if (!this._flagSprites) this._flagSprites = {};
+      var key = code.toLowerCase();
+      if (this._flagSprites[key]) return this._flagSprites[key];
+
+      var size = 72;
+      var half = size / 2;
+      var off = document.createElement('canvas');
+      off.width = size;
+      off.height = size;
+      var octx = off.getContext('2d');
+
+      octx.beginPath();
+      octx.arc(half, half, half - 1, 0, Math.PI * 2);
+      octx.clip();
+
+      var drawW = size * 1.4;
+      var drawH = size * 1.02;
+      octx.drawImage(img, half - drawW / 2, half - drawH / 2, drawW, drawH);
+
+      this._flagSprites[key] = off;
+      return off;
+    },
+
+    /**
+     * Helper — Draw a circular flag using cached offscreen sprite (zero per-frame clipping).
      */
     _drawCircularFlag: function (ctx, f, x, y, radius) {
       var img = this.loadFlagImage(f.code);
-      ctx.save();
+      var ready = img && ((img instanceof HTMLCanvasElement) || (img.complete && img.naturalWidth > 0));
 
-      // Speed boost outer glow
-      if (f.speedBoostTimer > 0) {
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = '#facc15';
-      }
-
-      // Clip to circle and draw flag image
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.clip();
-
-      // img can be an HTMLImageElement or a fallback canvas
-      var canDraw = false;
-      if (img) {
-        if (img instanceof HTMLCanvasElement) {
-          canDraw = true; // fallback canvas is always ready
-        } else if (img.complete && img.naturalWidth > 0) {
-          canDraw = true;
-        }
-      }
-
-      if (canDraw) {
-        var drawW = radius * 2.8;
-        var drawH = radius * 2.05;
-        ctx.drawImage(img, x - drawW / 2, y - drawH / 2, drawW, drawH);
+      if (ready) {
+        var sprite = this._getCircularFlagSprite(f.code, img);
+        ctx.drawImage(sprite, x - radius, y - radius, radius * 2, radius * 2);
       } else {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fillStyle = f.color || '#334155';
-        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-        // Draw country code text as placeholder
+        ctx.fill();
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold ' + Math.max(8, Math.round(radius * 0.7)) + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText((f.code || '??').toUpperCase(), x, y);
       }
-      ctx.restore();
 
       // Colored border ring
-      ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.strokeStyle = f.speedBoostTimer > 0 ? '#facc15' : (f.color || '#ffffff');
       ctx.lineWidth = f.speedBoostTimer > 0 ? 3.2 : 2.5;
       ctx.stroke();
-      ctx.restore();
     },
 
     /**

@@ -46,14 +46,22 @@
    * Returns true if segment (ax,ay)-(bx,by) strictly intersects (cx,cy)-(dx,dy).
    */
   function segmentsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
+    // Fast AABB rejection before division
+    if ((ax < cx && ax < dx && bx < cx && bx < dx) ||
+        (ax > cx && ax > dx && bx > cx && bx > dx) ||
+        (ay < cy && ay < dy && by < cy && by < dy) ||
+        (ay > cy && ay > dy && by > cy && by > dy)) {
+      return false;
+    }
     var d1x = bx - ax, d1y = by - ay;
     var d2x = dx - cx, d2y = dy - cy;
     var denom = d1x * d2y - d1y * d2x;
-    if (Math.abs(denom) < 1e-6) return false;
+    if (denom > -1e-6 && denom < 1e-6) return false;
     var qpx = cx - ax, qpy = cy - ay;
     var t = (qpx * d2y - qpy * d2x) / denom;
+    if (t <= 0.01 || t >= 0.99) return false;
     var u = (qpx * d1y - qpy * d1x) / denom;
-    return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
+    return u > 0.01 && u < 0.99;
   }
 
   /**
@@ -86,8 +94,8 @@
     /* --- configurable state (9:16 vertical stream layout) --- */
     arenaAngle: 0,
     accumulatedRotation: 0,
-    arenaRadius: 215,
-    baseRadius: 215,
+    arenaRadius: 247,
+    baseRadius: 247,
     gapSize: 0,                  // Closed arena (kept for API compatibility)
     gapDegrees: 0,
     centerX: 270,
@@ -131,8 +139,8 @@
       var w = config.width || 540;
       var h = config.height || 960;
       this.centerX = w / 2;
-      this.centerY = Math.round(h * 0.432);
-      this.arenaRadius = Math.min(220, Math.round(w * 0.398));
+      this.centerY = Math.round(h * 0.428);
+      this.arenaRadius = Math.min(252, Math.round(w * 0.458));
       this.baseRadius = this.arenaRadius;
       this.flagRadius = config.flagRadius || 18;
       this.gravity = config.gravity !== undefined ? config.gravity : 0.02;
@@ -143,8 +151,8 @@
     setDimensions: function (w, h) {
       if (!w || !h) return;
       this.centerX = w / 2;
-      this.centerY = Math.round(h * 0.432);
-      this.arenaRadius = Math.min(220, Math.round(w * 0.398));
+      this.centerY = Math.round(h * 0.428);
+      this.arenaRadius = Math.min(252, Math.round(w * 0.458));
       this.baseRadius = this.arenaRadius;
       this._updateAnchorPositions();
     },
@@ -487,8 +495,8 @@
         refAngles.push(Math.atan2(f.y - this.centerY, f.x - this.centerX));
       }
 
-      // Immediately fill all unobstructed open space in round-robin order (zero delay)
-      var maxPasses = free.length;
+      // Immediately fill unobstructed open space in round-robin order (up to 3 passes = 24 strings/frame)
+      var maxPasses = Math.min(3, free.length);
       for (var pass = 0; pass < maxPasses && free.length > 0; pass++) {
         var anyAttached = false;
         for (var j = 0; j < active.length && free.length > 0; j++) {
