@@ -470,7 +470,7 @@
     },
 
     _fillFreeAnchors: function (result) {
-      // Collect available free anchors (not on cut-anchor cooldown)
+      // Collect available free anchors (no GC-heavy sorting)
       var free = [];
       for (var k = 0; k < this.anchors.length; k++) {
         var a = this.anchors[k];
@@ -483,14 +483,21 @@
       var active = this.getActiveFlags();
       if (active.length <= 1) return;
 
-      // Round-robin: immediately fill unobstructed free anchors (up to 4 passes per frame)
-      for (var pass = 0; pass < 4 && free.length > 0; pass++) {
+      // Precompute reference angles once
+      var refAngles = [];
+      for (var i = 0; i < active.length; i++) {
+        var f = active[i];
+        refAngles.push(Math.atan2(f.y - this.centerY, f.x - this.centerX));
+      }
+
+      // Immediately fill all unobstructed open space in round-robin order (zero delay)
+      var maxPasses = free.length;
+      for (var pass = 0; pass < maxPasses && free.length > 0; pass++) {
         var anyAttached = false;
-        for (var i = 0; i < active.length && free.length > 0; i++) {
-          var f = active[i];
-          if (f.eliminated) continue;
-          var refAngle = Math.atan2(f.y - this.centerY, f.x - this.centerX);
-          if (this._tryAttachNearestAnchor(f, refAngle, free, result)) {
+        for (var j = 0; j < active.length && free.length > 0; j++) {
+          var flag = active[j];
+          if (flag.eliminated) continue;
+          if (this._tryAttachNearestAnchor(flag, refAngles[j], free, result)) {
             anyAttached = true;
           }
         }
@@ -499,37 +506,35 @@
     },
 
     _tryAttachNearestAnchor: function (flag, refAngle, free, result) {
-      // Sort candidates by angular distance so we only run intersection check on closest ones
+      // Pick closest unobstructed free anchor with zero allocations
       var bestIdx = -1;
-      var candidates = [];
+      var bestDiff = Infinity;
+
       for (var i = 0; i < free.length; i++) {
         var a = free[i];
-        candidates.push({
-          idx: i,
-          anchor: a,
-          diff: Math.abs(normalizeAngle(a.angle - refAngle))
-        });
-      }
-      candidates.sort(function (x, y) { return x.diff - y.diff; });
-
-      for (var c = 0; c < candidates.length; c++) {
-        var cand = candidates[c];
-        if (!this._wouldOverlapExistingString(flag, cand.anchor)) {
-          bestIdx = cand.idx;
-          var best = cand.anchor;
-          best.ownerId = flag.id;
-          flag.stringsRemaining++;
-          free.splice(bestIdx, 1);
-          if (result && result.attaches) {
-            result.attaches.push({
-              x: best.ax,
-              y: best.ay,
-              color: flag.color,
-              code: flag.code
-            });
-          }
-          return true;
+        var diff = Math.abs(normalizeAngle(a.angle - refAngle));
+        if (diff < bestDiff && !this._wouldOverlapExistingString(flag, a)) {
+          bestDiff = diff;
+          bestIdx = i;
         }
+      }
+
+      if (bestIdx !== -1) {
+        var best = free[bestIdx];
+        best.ownerId = flag.id;
+        flag.stringsRemaining++;
+        // Swap-remove from free array in O(1)
+        free[bestIdx] = free[free.length - 1];
+        free.pop();
+        if (result && result.attaches) {
+          result.attaches.push({
+            x: best.ax,
+            y: best.ay,
+            color: flag.color,
+            code: flag.code
+          });
+        }
+        return true;
       }
       return false;
     },
@@ -586,9 +591,9 @@
               break;
             }
 
-            // Cut the string and free the anchor (per-anchor cooldown prevents 1v1 stalemate)
+            // Cut the string and free the anchor (1-frame cooldown so it fills immediately next tick)
             anchor.ownerId = null;
-            anchor.cooldown = 0.45;
+            anchor.cooldown = 0.03;
             owner.stringsRemaining--;
             result.cuts.push({
               x: check.cx,
