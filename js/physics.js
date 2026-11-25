@@ -118,6 +118,7 @@
     /* --- Intro lobby state --- */
     introTimer: 0,
     introDuration: 3.2,
+    finalTwoTimer: 0,
 
     /* --- Chaos effect timers --- */
     _chaosVortexTimer: 0,
@@ -166,6 +167,7 @@
       this.safeCountryCode = null;
       this.startingGraceTimer = 0;
       this.introTimer = 0;
+      this.finalTwoTimer = 0;
       this.paused = false;
       this.resetChaosEffects();
     },
@@ -188,6 +190,7 @@
       this.arenaRadius = this.baseRadius || 215;
       this.introTimer = options.skipIntro ? 0 : this.introDuration;
       this.startingGraceTimer = this.startingGraceDuration;
+      this.finalTwoTimer = 0;
 
       var count = flagDataArray.length;
       if (count === 0) return;
@@ -396,11 +399,21 @@
       // 3. Flag-to-flag elastic collisions
       this._resolveCollisions(activeFlags, result.bounces);
 
-      // 4. String cutting checks (other flags crossing a flag's strings)
+      // 4. String cutting checks & sudden-death 1v1 timer
       if (this.startingGraceTimer <= 0) {
         this._checkStringCuts(activeFlags, result);
-        // 5. Surviving flags immediately claim open, non-overlapping space on the circle
-        this._fillFreeAnchors(result);
+
+        var remainingAfterCuts = this.getActiveCount();
+        if (remainingAfterCuts === 2) {
+          this.finalTwoTimer += dtSec;
+        } else {
+          this.finalTwoTimer = 0;
+        }
+
+        // 5. Surviving flags claim open space — stop giving new strings after 12s in final 1v1
+        if (!(remainingAfterCuts <= 2 && this.finalTwoTimer >= 12.0)) {
+          this._fillFreeAnchors(result);
+        }
       }
 
       return result;
