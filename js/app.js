@@ -1108,50 +1108,53 @@
   /* ══════════════════════════════════════════
      UI UPDATE (called each frame)
      ══════════════════════════════════════════ */
+  let _lastUiKey = '';
+  let _lastBoardKey = '';
+
   function updateUI() {
     const Game = window.FB.Game;
     const state = Game.state;
 
-    // Update counters
-    els.remainingCount.textContent = state.remaining;
-    els.eliminatedCount.textContent = state.eliminationOrder.length;
-    els.flagsInRound.textContent = state.remaining;
-    els.roundNumber.textContent = state.round;
-    els.roundTotal.textContent = (state.maxRounds && isFinite(state.maxRounds)) ? state.maxRounds : '∞';
-    updateGapDisplay();
+    // Only touch DOM counters when values actually change
+    const uiKey = state.remaining + '|' + state.eliminationOrder.length + '|' + state.round + '|' + state.allTimeRounds + '|' + state.allTimeEliminations + '|' + state.phase;
+    if (uiKey !== _lastUiKey) {
+      _lastUiKey = uiKey;
+      els.remainingCount.textContent = state.remaining;
+      els.eliminatedCount.textContent = state.eliminationOrder.length;
+      els.flagsInRound.textContent = state.remaining;
+      els.roundNumber.textContent = state.round;
+      els.roundTotal.textContent = (state.maxRounds && isFinite(state.maxRounds)) ? state.maxRounds : '∞';
+      els.allTimeRounds.textContent = state.allTimeRounds;
+      els.allTimeEliminations.textContent = state.allTimeEliminations;
+    }
 
-    // Auto countdown footer updates
+    // Auto countdown footer updates (only once per second change)
     if (state.phase === 'round_end' || state.phase === 'champion') {
       const secsLeft = Math.max(1, Math.ceil(Game.autoNextTimer));
       if (els.roundWinnerFooter) {
-        if (state.autoMode) {
-          els.roundWinnerFooter.textContent = `Next round starting in ${secsLeft}s... (Click to skip)`;
-        } else {
-          els.roundWinnerFooter.textContent = 'Click anywhere or press Space for Next Round';
-        }
+        const nextText = state.autoMode
+          ? `Next round starting in ${secsLeft}s... (Click to skip)`
+          : 'Click anywhere or press Space for Next Round';
+        if (els.roundWinnerFooter.textContent !== nextText) els.roundWinnerFooter.textContent = nextText;
       }
       if (els.championFooterText) {
-        if (state.autoMode) {
-          els.championFooterText.textContent = `Next battle starting in ${secsLeft}s... (Click to skip)`;
-        } else {
-          els.championFooterText.textContent = 'Click anywhere for Next Battle';
-        }
+        const champText = state.autoMode
+          ? `Next battle starting in ${secsLeft}s... (Click to skip)`
+          : 'Click anywhere for Next Battle';
+        if (els.championFooterText.textContent !== champText) els.championFooterText.textContent = champText;
       }
     }
 
-    // Throttle expensive UI updates (every 10 frames)
-    uiUpdateCounter++;
-    if (uiUpdateCounter % 10 === 0) {
+    // Only rebuild scoreboard/scores DOM when eliminations or round/phase change
+    const boardKey = state.eliminationOrder.length + '|' + state.round + '|' + state.phase;
+    if (boardKey !== _lastBoardKey) {
+      _lastBoardKey = boardKey;
       updateScoreboardUI();
       updateScoresUI();
     }
 
-    // All-time stats
-    els.allTimeRounds.textContent = state.allTimeRounds;
-    els.allTimeEliminations.textContent = state.allTimeEliminations;
-
     // Keep Safe Country banner hidden in string-cutting mode
-    if (els.safeLeaderBanner) {
+    if (els.safeLeaderBanner && !els.safeLeaderBanner.classList.contains('hidden')) {
       els.safeLeaderBanner.classList.add('hidden');
     }
   }
@@ -1449,8 +1452,10 @@
   }
 
   function gameLoop(timestamp) {
-    // Fixed timestep approach: we always pass dt=1 "tick"
-    const dt = 1;
+    // Delta-time normalized to 60fps tick (smooth on both 60Hz and 120Hz ProMotion displays)
+    const elapsedMs = timestamp - (lastFrameTime || timestamp);
+    lastFrameTime = timestamp;
+    const dt = Math.min(2.5, Math.max(0.2, elapsedMs / 16.6667));
 
     const Game = window.FB.Game;
 
@@ -1460,7 +1465,7 @@
     } else if (Game.state.phase === 'idle') {
       // Still render the idle view
       if (window.FB.Renderer) {
-        window.FB.Renderer.updateParticles(1 / 60);
+        window.FB.Renderer.updateParticles(elapsedMs / 1000);
         window.FB.Renderer.render(Game.getRenderState());
       }
     }

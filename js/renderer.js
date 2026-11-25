@@ -237,8 +237,7 @@
       var recentVoters   = state.recentVoters   || [];
       var winnerInfo     = state.winnerInfo     || null;
 
-      // Update particles
-      this.updateParticles(1);
+      // Update ambient particles
       this._updateAmbient(W, H);
 
       // --- Layer 1: Deep Black Background (matching recording) ---
