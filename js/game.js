@@ -53,7 +53,7 @@
       phase: 'idle',          // idle | playing | round_end | champion
       round: 1,
       maxRounds: Infinity,
-      flagCount: 100,
+      flagCount: 8,
       gapDegrees: 60,
       baseGapDegrees: 60,
       speedMultiplier: 1.0,
@@ -881,7 +881,7 @@
        SETTERS
        ────────────────────────────────────── */
     setFlagCount(n) {
-      this.state.flagCount = Math.max(10, Math.min(200, n));
+      this.state.flagCount = Math.max(2, Math.min(8, n));
     },
 
     setGapSize(deg) {

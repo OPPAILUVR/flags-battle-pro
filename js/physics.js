@@ -14,6 +14,9 @@
   /* ------------------------------------------------------------------ */
 
   var STRINGS_PER_FLAG = 10;
+
+  // Expose as mutable on module for UI control
+  var _stringsPerFlagOverride = null;
   var FLAG_COLORS = [
     '#ff3b5c', // Crimson
     '#3b82f6', // Electric Blue
@@ -161,8 +164,9 @@
       var count = flagDataArray.length;
       if (count === 0) return;
 
+      var stringsCount = this._stringsPerFlag || _stringsPerFlagOverride || STRINGS_PER_FLAG;
+
       var slotRadius = this.arenaRadius * 0.56;
-      var totalAnchors = count * STRINGS_PER_FLAG;
       var angleStep = (Math.PI * 2) / count;
       // Start slot 0 at bottom (PI/2) so Champion sits at bottom like the recording
       var startAngle = Math.PI / 2;
@@ -177,10 +181,10 @@
         // Build contiguous arc of anchor points around slotAngle
         var strings = [];
         var arcSpan = angleStep;
-        var anchorStep = arcSpan / STRINGS_PER_FLAG;
+        var anchorStep = arcSpan / stringsCount;
         var arcStart = slotAngle - arcSpan / 2 + anchorStep / 2;
 
-        for (var s = 0; s < STRINGS_PER_FLAG; s++) {
+        for (var s = 0; s < stringsCount; s++) {
           var aAngle = arcStart + s * anchorStep;
           strings.push({
             angle: aAngle,

@@ -45,6 +45,11 @@
     }
     initYouTubeUI();
     initRetentionUI();
+    updateFlagCountDisplay();
+    updateSpeedDisplay();
+    updateStringsDisplay();
+    updateIntroDisplay();
+    updateChampDisplay();
     startGameLoop();
     renderIdleState();
   }
@@ -62,15 +67,18 @@
       btnMic: $('#btn-mic'),
       btnFlagMinus: $('#btn-flag-minus'),
       btnFlagPlus: $('#btn-flag-plus'),
-      btnGapMinus: $('#btn-gap-minus'),
-      btnGapPlus: $('#btn-gap-plus'),
-      gapSizeDisplay: $('#gap-size-display'),
       btnSpeedMinus: $('#btn-speed-minus'),
       btnSpeedPlus: $('#btn-speed-plus'),
       speedDisplay: $('#speed-display'),
-      btnBounceMinus: $('#btn-bounce-minus'),
-      btnBouncePlus: $('#btn-bounce-plus'),
-      bounceDisplay: $('#bounce-display'),
+      btnStringsMinus: $('#btn-strings-minus'),
+      btnStringsPlus: $('#btn-strings-plus'),
+      stringsDisplay: $('#strings-display'),
+      btnIntroMinus: $('#btn-intro-minus'),
+      btnIntroPlus: $('#btn-intro-plus'),
+      introDisplay: $('#intro-display'),
+      btnChampMinus: $('#btn-champ-minus'),
+      btnChampPlus: $('#btn-champ-plus'),
+      champDisplay: $('#champ-display'),
       btnRefresh: $('#btn-refresh'),
       btnLangEn: $('#btn-lang-en'),
       btnLangTr: $('#btn-lang-tr'),
@@ -189,7 +197,7 @@
     // Init Game
     if (window.FB.Game) {
       window.FB.Game.init({
-        flagCount: 100,
+        flagCount: 8,
         maxRounds: Infinity
       });
     }
@@ -284,35 +292,20 @@
     // --- Mic / TTS toggle ---
     els.btnMic.addEventListener('click', onMicToggle);
 
-    // --- Flag count +/- ---
+    // --- Flag count (contenders) +/- ---
     els.btnFlagMinus.addEventListener('click', () => {
       const Game = window.FB.Game;
-      Game.setFlagCount(Game.state.flagCount - 10);
+      Game.setFlagCount(Game.state.flagCount - 1);
       updateFlagCountDisplay();
     });
 
     els.btnFlagPlus.addEventListener('click', () => {
       const Game = window.FB.Game;
-      Game.setFlagCount(Game.state.flagCount + 10);
+      Game.setFlagCount(Game.state.flagCount + 1);
       updateFlagCountDisplay();
     });
 
-    // --- Circle Gap +/- ---
-    els.btnGapMinus.addEventListener('click', () => {
-      const Game = window.FB.Game;
-      Game.setGapSize(Game.state.gapDegrees - 5);
-      updateGapDisplay();
-      if (Game.state.phase === 'idle') renderIdleState();
-    });
-
-    els.btnGapPlus.addEventListener('click', () => {
-      const Game = window.FB.Game;
-      Game.setGapSize(Game.state.gapDegrees + 5);
-      updateGapDisplay();
-      if (Game.state.phase === 'idle') renderIdleState();
-    });
-
-    // --- Circle Speed +/- ---
+    // --- Flag speed +/- ---
     els.btnSpeedMinus.addEventListener('click', () => {
       const Game = window.FB.Game;
       Game.setRotationSpeed(Game.state.speedMultiplier - 0.2);
@@ -325,20 +318,59 @@
       updateSpeedDisplay();
     });
 
-    // --- Emoji Bounce +/- ---
-    if (els.btnBounceMinus) {
-      els.btnBounceMinus.addEventListener('click', () => {
-        const Game = window.FB.Game;
-        Game.setBounce(Game.state.bounceMultiplier - 0.2);
-        updateBounceDisplay();
+    // --- Strings per flag +/- ---
+    if (els.btnStringsMinus) {
+      els.btnStringsMinus.addEventListener('click', () => {
+        const P = window.FB.Physics;
+        if (!P) return;
+        var cur = P._stringsPerFlag || 10;
+        P._stringsPerFlag = Math.max(3, cur - 1);
+        updateStringsDisplay();
+      });
+    }
+    if (els.btnStringsPlus) {
+      els.btnStringsPlus.addEventListener('click', () => {
+        const P = window.FB.Physics;
+        if (!P) return;
+        var cur = P._stringsPerFlag || 10;
+        P._stringsPerFlag = Math.min(20, cur + 1);
+        updateStringsDisplay();
       });
     }
 
-    if (els.btnBouncePlus) {
-      els.btnBouncePlus.addEventListener('click', () => {
-        const Game = window.FB.Game;
-        Game.setBounce(Game.state.bounceMultiplier + 0.2);
-        updateBounceDisplay();
+    // --- Intro duration +/- ---
+    if (els.btnIntroMinus) {
+      els.btnIntroMinus.addEventListener('click', () => {
+        const P = window.FB.Physics;
+        if (!P) return;
+        P.introDuration = Math.max(0, (P.introDuration || 3.2) - 0.5);
+        updateIntroDisplay();
+      });
+    }
+    if (els.btnIntroPlus) {
+      els.btnIntroPlus.addEventListener('click', () => {
+        const P = window.FB.Physics;
+        if (!P) return;
+        P.introDuration = Math.min(10, (P.introDuration || 3.2) + 0.5);
+        updateIntroDisplay();
+      });
+    }
+
+    // --- Grand champion timer +/- ---
+    if (els.btnChampMinus) {
+      els.btnChampMinus.addEventListener('click', () => {
+        const G = window.FB.Game;
+        if (!G) return;
+        G.grandChampionTimer = Math.max(60, (G.grandChampionTimer || 240) - 30);
+        updateChampDisplay();
+      });
+    }
+    if (els.btnChampPlus) {
+      els.btnChampPlus.addEventListener('click', () => {
+        const G = window.FB.Game;
+        if (!G) return;
+        G.grandChampionTimer = Math.min(600, (G.grandChampionTimer || 240) + 30);
+        updateChampDisplay();
       });
     }
 
@@ -1259,26 +1291,44 @@
     }
   }
 
-  /** Update circle gap display */
-  function updateGapDisplay() {
-    if (els.gapSizeDisplay) {
-      els.gapSizeDisplay.textContent = window.FB.Game.state.gapDegrees + '°';
-    }
-  }
-
-  /** Update circle speed display */
+  /** Update flag speed display */
   function updateSpeedDisplay() {
     if (els.speedDisplay) {
       els.speedDisplay.textContent = window.FB.Game.state.speedMultiplier.toFixed(1) + 'x';
     }
   }
 
-  /** Update emoji bounce display */
-  function updateBounceDisplay() {
-    if (els.bounceDisplay) {
-      els.bounceDisplay.textContent = window.FB.Game.state.bounceMultiplier.toFixed(1) + 'x';
+  /** Update strings per flag display */
+  function updateStringsDisplay() {
+    if (els.stringsDisplay) {
+      var val = (window.FB.Physics && window.FB.Physics._stringsPerFlag) ? window.FB.Physics._stringsPerFlag : 10;
+      els.stringsDisplay.textContent = val;
     }
   }
+
+  /** Update intro duration display */
+  function updateIntroDisplay() {
+    if (els.introDisplay) {
+      var val = (window.FB.Physics && window.FB.Physics.introDuration !== undefined) ? window.FB.Physics.introDuration : 3.2;
+      els.introDisplay.textContent = val.toFixed(1) + 's';
+    }
+  }
+
+  /** Update grand champion timer display */
+  function updateChampDisplay() {
+    if (els.champDisplay) {
+      var secs = Math.max(0, Math.floor((window.FB.Game && window.FB.Game.grandChampionTimer !== undefined) ? window.FB.Game.grandChampionTimer : 240));
+      var mm = String(Math.floor(secs / 60)).padStart(1, '0');
+      var ss = String(secs % 60).padStart(2, '0');
+      els.champDisplay.textContent = mm + ':' + ss;
+    }
+  }
+
+  /** Update gap display (no-op for new game, kept for compatibility) */
+  function updateGapDisplay() {}
+
+  /** Update bounce display (no-op for new game, kept for compatibility) */
+  function updateBounceDisplay() {}
 
   /** Show round winner overlay */
   function showRoundWinnerOverlay(code, name, round, wins) {

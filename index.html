@@ -23,9 +23,9 @@
         </div>
       </div>
 
-      <!-- Match Controls -->
+      <!-- Battle Controls -->
       <div class="section">
-        <h3 class="section-title" data-i18n="match">Match</h3>
+        <h3 class="section-title" data-i18n="match">Battle</h3>
         <div class="match-controls">
           <button id="btn-start" class="btn btn-primary">
             <span class="btn-icon">▶</span> <span data-i18n="start">Start</span>
@@ -35,23 +35,15 @@
           </button>
         </div>
         <div class="flag-count-control">
-          <span class="flag-count-label" data-i18n="flagsInArena">Flags in the arena</span>
+          <span class="flag-count-label">Contenders per round</span>
           <div class="flag-count-stepper">
             <button id="btn-flag-minus" class="stepper-btn">−</button>
-            <span id="flag-count-display">100</span>
+            <span id="flag-count-display">8</span>
             <button id="btn-flag-plus" class="stepper-btn">+</button>
           </div>
         </div>
         <div class="setting-row">
-          <span class="setting-label" data-i18n="circleGap">Circle gap</span>
-          <div class="setting-stepper">
-            <button id="btn-gap-minus" class="stepper-btn">−</button>
-            <span id="gap-size-display" class="setting-value">60°</span>
-            <button id="btn-gap-plus" class="stepper-btn">+</button>
-          </div>
-        </div>
-        <div class="setting-row">
-          <span class="setting-label" data-i18n="circleSpeed">Circle speed</span>
+          <span class="setting-label">Flag speed</span>
           <div class="setting-stepper">
             <button id="btn-speed-minus" class="stepper-btn">−</button>
             <span id="speed-display" class="setting-value">1.0x</span>
@@ -59,11 +51,27 @@
           </div>
         </div>
         <div class="setting-row">
-          <span class="setting-label" data-i18n="emojiBounce">Emoji bounce</span>
+          <span class="setting-label">Strings per flag</span>
           <div class="setting-stepper">
-            <button id="btn-bounce-minus" class="stepper-btn">−</button>
-            <span id="bounce-display" class="setting-value">1.2x</span>
-            <button id="btn-bounce-plus" class="stepper-btn">+</button>
+            <button id="btn-strings-minus" class="stepper-btn">−</button>
+            <span id="strings-display" class="setting-value">10</span>
+            <button id="btn-strings-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Intro duration</span>
+          <div class="setting-stepper">
+            <button id="btn-intro-minus" class="stepper-btn">−</button>
+            <span id="intro-display" class="setting-value">3s</span>
+            <button id="btn-intro-plus" class="stepper-btn">+</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Grand champ timer</span>
+          <div class="setting-stepper">
+            <button id="btn-champ-minus" class="stepper-btn">−</button>
+            <span id="champ-display" class="setting-value">4:00</span>
+            <button id="btn-champ-plus" class="stepper-btn">+</button>
           </div>
         </div>
       </div>
@@ -99,7 +107,7 @@
           <div class="mode-icon">⚡</div>
           <div class="mode-info">
             <div class="mode-name" data-i18n="lightning">Lightning</div>
-            <div class="mode-desc" data-i18n="lightningDesc">Strikes knock out flags</div>
+            <div class="mode-desc">Lightning cuts random strings</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-lightning">
@@ -111,7 +119,7 @@
           <div class="mode-icon">🌀</div>
           <div class="mode-info">
             <div class="mode-name" data-i18n="chaos">Chaos</div>
-            <div class="mode-desc" data-i18n="chaosDesc">Random events in the arena</div>
+            <div class="mode-desc">Vortex, wind, speed bursts</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="toggle-chaos">

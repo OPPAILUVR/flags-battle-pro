@@ -128,9 +128,11 @@
      * Preload and cache a single flag image by country code.
      */
     loadFlagImage: function (code) {
-      if (!code) return;
+      if (!code) return null;
       var cleanCode = code.toLowerCase();
-      if (this.flagImages[cleanCode] || this._flagLoading[cleanCode]) return;
+      // Return cached image immediately if available
+      if (this.flagImages[cleanCode]) return this.flagImages[cleanCode];
+      if (this._flagLoading[cleanCode]) return null;
       this._flagLoading[cleanCode] = true;
       var img = new Image();
       img.crossOrigin = 'anonymous';
@@ -155,6 +157,7 @@
         self.flagImages[cleanCode] = fc;
         self.flagImages[code] = fc;
       };
+      return null;
     },
 
     /**
@@ -711,13 +714,29 @@
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.clip();
 
-      if (img && img.complete && img.naturalWidth > 0) {
+      // img can be an HTMLImageElement or a fallback canvas
+      var canDraw = false;
+      if (img) {
+        if (img instanceof HTMLCanvasElement) {
+          canDraw = true; // fallback canvas is always ready
+        } else if (img.complete && img.naturalWidth > 0) {
+          canDraw = true;
+        }
+      }
+
+      if (canDraw) {
         var drawW = radius * 2.8;
         var drawH = radius * 2.05;
         ctx.drawImage(img, x - drawW / 2, y - drawH / 2, drawW, drawH);
       } else {
         ctx.fillStyle = f.color || '#334155';
         ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+        // Draw country code text as placeholder
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold ' + Math.max(8, Math.round(radius * 0.7)) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText((f.code || '??').toUpperCase(), x, y);
       }
       ctx.restore();
 
