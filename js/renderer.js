@@ -433,30 +433,52 @@
     },
 
     /**
-     * Layer 7 — Bottom HUD: VOTES 10-slot row, CTA, and 4-row Live Voter Feed.
+     * Layer 7 — Bottom HUD: Gold VOTES + 10-slot flag badges, CTA, and 4-row Live Voter Feed.
      */
     _drawBottomHUD: function (ctx, W, H, arenaBottomY, voteQueueCodes, recentVoters) {
       var votesY = Math.max(arenaBottomY + 18, 676);
 
-      // "VOTES" + 10 circular slots
+      // Gold "VOTES" + 10 circular slots with vote-count badges
       ctx.save();
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('VOTES', 28, votesY);
+      ctx.fillStyle = '#facc15';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('VOTES', 24, votesY);
 
-      var slotStartX = 96;
+      var slotStartX = 102;
       var slotGap = 39;
       for (var i = 0; i < 10; i++) {
         var sx = slotStartX + i * slotGap;
-        var code = voteQueueCodes[i];
+        var item = voteQueueCodes[i];
+        var code = item ? (typeof item === 'string' ? item : item.code) : null;
+        var vCount = item && typeof item === 'object' ? item.votes : 0;
+
         if (code) {
-          this._drawCircularFlag(ctx, { code: code, color: '#ffffff' }, sx, votesY, 13);
+          this._drawCircularFlag(ctx, { code: code, color: '#ffffff' }, sx, votesY, 13.5);
+
+          // Small bottom-right vote badge (matches screenshot)
+          if (vCount > 0) {
+            var bx = sx + 9;
+            var by = votesY + 9;
+            ctx.beginPath();
+            ctx.arc(bx, by, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#09090b';
+            ctx.fill();
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#facc15';
+            ctx.font = 'bold 8px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(vCount), bx, by + 0.5);
+          }
         } else {
           ctx.beginPath();
-          ctx.arc(sx, votesY, 13, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+          ctx.arc(sx, votesY, 13.5, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,255,255,0.2)';
           ctx.lineWidth = 1.5;
           ctx.stroke();
         }
@@ -465,55 +487,75 @@
       // CTA line
       var ctaY = votesY + 34;
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px sans-serif';
+      ctx.font = 'bold 16px sans-serif';
       ctx.fillText('COMMENT A COUNTRY · TOP 7 PLAY NEXT!', W / 2, ctaY);
 
-      // 4-row Live Voter Feed
-      var feedStartY = ctaY + 24;
-      var rowH = 38;
-      var rowGap = 6;
+      // 4-row Live Voter Feed (clean rows matching target screenshot)
+      var feedStartY = ctaY + 22;
+      var rowH = 34;
+      var rowGap = 4;
       var barW = W - 40;
 
-      for (var r = 0; r < 4; r++) {
+      for (var r = 0; r < Math.min(4, recentVoters.length); r++) {
         var ry = feedStartY + r * (rowH + rowGap);
-        if (ry + rowH > H - 6) break;
+        if (ry + rowH > H - 4) break;
         var v = recentVoters[r];
+        if (!v) continue;
 
-        // Dark pill background
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(20, ry, barW, rowH, 8);
-        else ctx.rect(20, ry, barW, rowH);
-        ctx.fill();
+        // Subtle warm highlight on the newest row (bottom-most / active)
+        if (r === recentVoters.length - 1) {
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.08)';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(20, ry, barW, rowH, 6);
+          else ctx.rect(20, ry, barW, rowH);
+          ctx.fill();
+        }
 
-        if (v) {
-          this._drawCircularFlag(ctx, { code: v.code, color: '#ffffff' }, 42, ry + rowH / 2, 11);
+        this._drawCircularFlag(ctx, { code: v.code, color: '#ffffff' }, 38, ry + rowH / 2, 11);
 
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#facc15';
-          ctx.font = 'bold 12px sans-serif';
-          var cName = (v.name || v.code).toUpperCase();
-          ctx.fillText(cName, 62, ry + rowH / 2);
+        // Country name in bold WHITE
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 13px sans-serif';
+        var cName = (v.name || v.code).toUpperCase();
+        ctx.fillText(cName, 58, ry + rowH / 2);
 
-          var nameW = ctx.measureText(cName).width;
-          ctx.fillStyle = '#9ca3af';
-          ctx.font = '11px sans-serif';
-          var handle = '@' + String(v.author || 'viewer').replace(/^@/, '');
-          if (handle.length > 18) handle = handle.slice(0, 17) + '…';
-          ctx.fillText(handle, 68 + nameW, ry + rowH / 2);
+        // @username in muted gray
+        var nameW = ctx.measureText(cName).width;
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '12px sans-serif';
+        var handle = '@' + String(v.author || 'viewer').replace(/^@/, '');
+        if (handle.length > 15) handle = handle.slice(0, 14) + '…';
+        ctx.fillText(handle, 65 + nameW, ry + rowH / 2);
 
-          ctx.textAlign = 'right';
-          ctx.fillStyle = '#facc15';
-          ctx.font = 'bold 11px sans-serif';
-          ctx.fillText('#' + (r + 1) + ' · ' + v.votes + ' VOTES', 20 + barW - 12, ry + rowH / 2);
-        } else {
+        // Right side: #rank (GREEN) + " · X VOTES" (GOLD) + optional orange 2x badge
+        var rightEdge = 20 + barW - 10;
+        var votesStr = ' · ' + v.votes + ' VOTES';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#facc15';
+        ctx.fillText(votesStr, rightEdge, ry + rowH / 2);
+
+        var votesW = ctx.measureText(votesStr).width;
+        var rankStr = '#' + (v.rank || (r + 1));
+        ctx.fillStyle = '#22c55e';
+        ctx.fillText(rankStr, rightEdge - votesW, ry + rowH / 2);
+
+        if (v.boosted) {
+          var rankW = ctx.measureText(rankStr).width;
+          var badgeX = rightEdge - votesW - rankW - 14;
+          var badgeY = ry + rowH / 2;
+          ctx.beginPath();
+          ctx.arc(badgeX, badgeY, 8.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ea580c';
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 8px sans-serif';
           ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = 'rgba(255,255,255,0.18)';
-          ctx.font = '11px sans-serif';
-          ctx.fillText('Waiting for live chat votes...', W / 2, ry + rowH / 2);
+          ctx.fillText('2X', badgeX, badgeY + 0.5);
         }
       }
       ctx.restore();

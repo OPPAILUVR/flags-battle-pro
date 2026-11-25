@@ -1071,11 +1071,27 @@
       // Top 3 scoreboard entries for canvas HUD
       const topScoreboard = this.getScoreboard().slice(0, 3);
 
-      // Top voted countries for the 10-slot VOTES bar
-      const voteQueueCodes = Object.keys(this.state.support || {})
+      // Top voted countries with vote counts for the 10-slot VOTES bar
+      const sortedSupportCodes = Object.keys(this.state.support || {})
         .filter(c => (this.state.support[c] || 0) > 0)
-        .sort((a, b) => (this.state.support[b] || 0) - (this.state.support[a] || 0))
-        .slice(0, 10);
+        .sort((a, b) => (this.state.support[b] || 0) - (this.state.support[a] || 0));
+
+      const voteQueueCodes = sortedSupportCodes.slice(0, 10).map(c => ({
+        code: c,
+        votes: this.state.support[c] || 0
+      }));
+
+      // Compute rank lookup for voter feed
+      const rankMap = {};
+      sortedSupportCodes.forEach((c, idx) => { rankMap[c] = idx + 1; });
+      const recentVoters = (this._recentVoters || []).slice(0, 4).map(v => ({
+        code: v.code,
+        name: v.name,
+        author: v.author,
+        votes: this.state.support[v.code] || v.votes || 1,
+        rank: rankMap[v.code] || 1,
+        boosted: ((this.state.support[v.code] || 0) >= 5)
+      }));
 
       // Winner info for in-circle WINNER! display
       let winnerInfo = null;
@@ -1095,7 +1111,7 @@
         eliminationBanner: (this._lastBanner && this._lastBanner.timer > 0) ? this._lastBanner : null,
         grandChampionTimer: this.grandChampionTimer !== undefined ? this.grandChampionTimer : 240,
         voteQueueCodes: voteQueueCodes,
-        recentVoters: (this._recentVoters || []).slice(0, 4),
+        recentVoters: recentVoters,
         winnerInfo: winnerInfo,
         phase: this.state.phase
       });
