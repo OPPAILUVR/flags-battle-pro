@@ -77,7 +77,7 @@
      */
     init: function (canvas) {
       this.canvas = canvas;
-      this.ctx    = canvas.getContext('2d', { alpha: false, desynchronized: true }) || canvas.getContext('2d');
+      this.ctx    = canvas.getContext('2d');
       this._flagSprites = {};
       canvas.width  = 540;
       canvas.height = 960;
