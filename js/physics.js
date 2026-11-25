@@ -586,9 +586,9 @@
               break;
             }
 
-            // Cut the string and free the anchor (tiny per-anchor cooldown prevents same-frame stalemate)
+            // Cut the string and free the anchor (per-anchor cooldown prevents 1v1 stalemate)
             anchor.ownerId = null;
-            anchor.cooldown = 0.22;
+            anchor.cooldown = 0.45;
             owner.stringsRemaining--;
             result.cuts.push({
               x: check.cx,
